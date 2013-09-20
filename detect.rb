@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
+# vim:fileencoding=UTF-8 shiftwidth=2:
 
-require 'awesome_print'
 require 'ipaddr'
 require 'pp'
 
@@ -9,11 +9,12 @@ module CheckMK
   module Helper
     module NMAP
       def self.ping(target, options = '')
-        self.scan(target, "-n -sP #{options}")
+        self.scan(target, "-sP #{options}")
       end
 
       def self.scan(target, options = '')
-        `nmap #{options} #{target} 2>/dev/null`
+        puts "nmap"
+        `nmap #{options} #{target}`
           .lines
           .reject { |l| l =~ /Starting nmap .*http:\/\/.*nmap/i }
           .join('\n')
@@ -22,11 +23,13 @@ module CheckMK
 
     module SNMP
       def self.status(agent, version: '2c', community: 'public')
-        `snmpstatus -v#{version} -c#{community} -mALL #{agent} 2>/dev/null`
+        puts "snmpstatus"
+        `snmpstatus -v#{version} -c#{community} -mALL #{agent}`
       end
 
       def self.bulkget(agent, version: '2c', community: 'public', oids: [])
-        `snmpbulkget -v#{version} -c#{community} -mALL #{agent} #{oids.join(' ')} 2>/dev/null`
+        puts "snmpbulkget"
+        `snmpbulkget -v#{version} -c#{community} -mALL #{agent} #{oids.join(' ')}`
       end
     end
 
@@ -46,35 +49,6 @@ module CheckMK
 
   class Device
     include Comparable
-
-    TYPE_MAP = {
-      /\b10\.9\.[0-9]{3}\.1\b/ => 'router',
-      /switch|superstack/i     => 'switch',
-    }
-
-    OPERATING_SYSTEM_MAP = {
-      /linux/i              => 'linux',
-      /microsoft.*windows/i => 'windows',
-    }
-
-    MODEL_MAP = {
-      /dell.*2900/i => 'dell-2900',
-      /dell.*r520/i => 'dell-r520',
-      /dell.*r710/i => 'dell-r710',
-      /dell.*t420/i => 'dell-t420',
-    }
-
-    SERVICE_MAP = {
-      /dhcp/i   => 'dhcp',
-      /dns/i    => 'dns',
-      /http\b/i => 'http', # \b matches word-boundary to avoid matching "https"
-      /https/i  => 'https',
-      /ldap\b/i => 'ldap', # \b matches word-boundary to avoid matching "ldaps"
-      /ldaps/i  => 'ldap',
-      /smtp\b/i => 'smtp', # \b matches word-boundary to avoid matching "smtps"
-      /smtps/i  => 'smtps',
-      /ssh/i    => 'ssh',
-    }
 
     attr_accessor :hostname
     attr_accessor :ipaddress
@@ -109,36 +83,6 @@ module CheckMK
     def to_s
       self.name.to_s
     end
-
-    def detect_properties!
-      snmp_oids = %w[sysDescr sysObjectID]
-      snmp_version = nil
-      status = ''
-
-      ['2c', '1'].each do |version|
-        if status.empty?
-          status = Helper::SNMP.status(self.ipaddress.to_s, version: version)
-          snmp_version = version unless status.empty?
-        end
-      end
-
-      status << Helper::SNMP.bulkget(self.ipaddress.to_s,
-                                     version: snmp_version,
-                                     oids: snmp_oids) if snmp_version
-      status << Helper::NMAP.scan(self.ipaddress.to_s, '-O')
-
-      self.networking      = 'lan'
-      self.criticality     = 'prod'
-      self.agent           = 'ping'    unless snmp_version
-      self.agent           = 'snmp'    if snmp_version == '2c'
-      self.agent           = 'snmp-v1' if snmp_version == '1'
-      self.type            = Helper.map(TYPE_MAP, status).first
-      self.model           = Helper.map(MODEL_MAP, status).first
-      self.operatingsystem = Helper.map(OPERATING_SYSTEM_MAP, status).first
-      self.services        = Helper.map(SERVICE_MAP, status)
-
-      self
-    end
   end
 
 
@@ -155,54 +99,117 @@ module CheckMK
     def <=>(other)
       self.name <=> other.name
     end
+  end
 
-    def detect!
-      self.devices = Location::detect(self.ranges)
 
-      self.devices.each { |d| d.location = self }
+  class Detector
+    SNMP_STATUS_OIDS = [
+      'sysDescr',
+      'sysObjectID',
+      'MIB-Dell-CM::dell.10892.1.300.10.1.9',
+      'SNMPv2-SMI::enterprises.231.2.10.2.2.5.10.3.1.4',
+    ]
+
+    TYPE_MAP = {
+      /\b10\.9\.[0-9]{3}\.1\b/ => 'router',
+      /switch|superstack/i     => 'switch',
+    }
+
+    OPERATING_SYSTEM_MAP = {
+      /linux/i              => 'linux',
+      /microsoft.*windows/i => 'windows',
+    }
+
+    MODEL_MAP = {
+      /dell.*2900/i => 'dell-2900',
+      /dell.*r520/i => 'dell-r520',
+      /dell.*r710/i => 'dell-r710',
+      /dell.*t420/i => 'dell-t420',
+    }
+
+    SERVICE_MAP = {
+      /dhcp/i   => 'dhcp',
+      /dns/i    => 'dns',
+      /http\b/i => 'http',
+      /https/i  => 'https',
+      /ldap\b/i => 'ldap',
+      /ldaps/i  => 'ldap',
+      /smtp\b/i => 'smtp',
+      /smtps/i  => 'smtps',
+      /ssh/i    => 'ssh',
+    }
+
+    attr_accessor :locations
+
+    def detect_devices!
+      ## TODO Run detection in threads
+      self.locations.each do |location|
+        Detector.detect_devices(location)
+      end
 
       self
     end
 
-    def self.detect(ranges = [])
+    def self.detect_devices(location)
       devices = []
 
-      Helper::NMAP.ping(ranges.join(' '), '-oG -').lines.select { |l| l =~ /host.*status.*up/i }.each do |line|
+      Helper::NMAP.ping(location.ranges.join(' '), '-oG -')
+        .lines
+        .select {
+          |l| l =~ /host.*status.*up/i
+        }.each do |line|
         tmp_a, ipaddress, hostname, *tmp_b = line.split
 
         hostname.gsub!(/[()]/, '')
 
         hostname  = nil if hostname.empty?
         ipaddress = IPAddr.new(ipaddress)
-        device    = Device.new(hostname:  hostname, ipaddress: ipaddress)
+        device    = Device.new(hostname:  hostname,
+                               ipaddress: ipaddress,
+                               location:  location)
 
         devices.push(device)
       end
 
-      devices
-    end
-  end
-
-
-  class Detector
-    attr_accessor :locations
-
-    def detect_devices!
-      ## TODO Run detection in threads
-      self.locations.each do |location|
-        location.detect!
-      end
-
-      self
+      location.devices = devices
     end
 
-    def detect_device_properties!
+    def detect_devices_properties!
       ## TODO Run detection in threads
       self.locations.each do |location|
         location.devices.each do |device|
-          device.detect_properties!
+          Detector.detect_device_properties(device)
         end
       end
+    end
+
+    def self.detect_device_properties(device)
+      snmp   = nil
+      status = ''
+
+      ['2c', '1'].each do |version|
+        if status.empty?
+          status = Helper::SNMP.status(device.ipaddress.to_s, version: version)
+          snmp   = version unless status.empty?
+        end
+      end
+
+      status << Helper::SNMP.bulkget(device.ipaddress.to_s,
+                                     version: snmp,
+                                     oids:    SNMP_STATUS_OIDS) if snmp
+      status << Helper::NMAP.scan(device.ipaddress.to_s, '-O')
+
+      device.networking      = 'lan'
+      device.criticality     = 'prod'
+      device.agent           = 'ping'    unless snmp
+      device.agent           = 'snmp'    if snmp == '2c'
+      device.agent           = 'snmp-v1' if snmp == '1'
+      device.type            = Helper.map(TYPE_MAP, status).first
+      device.model           = Helper.map(MODEL_MAP, status).first
+      device.operatingsystem = Helper.map(OPERATING_SYSTEM_MAP, status).first
+      device.services        = Helper.map(SERVICE_MAP, status)
+
+      device
     end
 
     def parse_locations(text = "")
@@ -230,7 +237,7 @@ if __FILE__ == $0
 
   detector.parse_locations(ARGF.read)
   detector.detect_devices!
-  detector.detect_device_properties!
+  detector.detect_devices_properties!
 
   detector.locations.each do |location|
     puts "#{location.name}: #{location.ranges.join(" ")}, #{location.devices.size} devices"
