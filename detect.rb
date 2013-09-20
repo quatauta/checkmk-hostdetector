@@ -13,7 +13,6 @@ module CheckMK
       end
 
       def self.scan(target, options = '')
-        puts "nmap"
         `nmap #{options} #{target}`
           .lines
           .reject { |l| l =~ /Starting nmap .*http:\/\/.*nmap/i }
@@ -23,12 +22,10 @@ module CheckMK
 
     module SNMP
       def self.status(agent, version: '2c', community: 'public')
-        puts "snmpstatus"
         `snmpstatus -v#{version} -c#{community} -mALL #{agent}`
       end
 
       def self.bulkget(agent, version: '2c', community: 'public', oids: [])
-        puts "snmpbulkget"
         `snmpbulkget -v#{version} -c#{community} -mALL #{agent} #{oids.join(' ')}`
       end
     end
@@ -36,7 +33,7 @@ module CheckMK
     def self.map(map, text)
       results = []
 
-      map.each_pair do |regex, value|
+      map.each_pair do |value, regex|
         if text =~ regex
           results << value
         end
@@ -50,29 +47,24 @@ module CheckMK
   class Device
     include Comparable
 
-    attr_accessor :hostname
-    attr_accessor :ipaddress
-    attr_accessor :location
-    attr_accessor :networking
-    attr_accessor :criticality
+    attr_accessor :name, :hostname, :ipaddress, :location
     attr_accessor :agent
-    attr_accessor :type
+    attr_accessor :criticality
     attr_accessor :model
+    attr_accessor :networking
     attr_accessor :operatingsystem
     attr_accessor :services
+    attr_accessor :type
 
     def initialize(hostname: nil, ipaddress: nil, location: nil)
       self.hostname  = hostname
       self.ipaddress = ipaddress
       self.location  = location
-    end
 
-    def name
-      if !self.hostname.to_s.empty?
-        self.hostname
+      if self.hostname.to_s.empty?
+        self.name = Device.name_from_ipaddress(self.location, self.ipaddress)
       else
-        # TODO Build a symbolic name out of ipaddress
-        self.ipaddress
+        self.name = self.hostname.sub(/\..*/i, '').upcase
       end
     end
 
@@ -82,6 +74,47 @@ module CheckMK
 
     def to_s
       self.name.to_s
+    end
+
+    def self.name_from_ipaddress(location, ipaddress)
+      ip_c = ipaddress.to_s.split('.')[2].to_i
+      ip_d = ipaddress.to_s.split('.')[3].to_i
+
+      name = case ipaddress.to_s
+             when /\b10\.9\.[0-9]{1,3}\.1\b/i    then "#{location}R01"
+             when /\b10\.190\.[0-9]{1,3}\.1\b/i  then "#{location}R11"
+             when /\b10\.190\.[0-9]{1,3}\.16\b/i then "#{location}R21"
+             when /\b10\.9\.[0-9]{1,3}\.3[1-9]\b/i
+               case location
+               when /tr01|tr10/i
+                 "%sS%03d%02d" % [location, ip_c, ip_d - 229]
+               when /tr11/i
+                 nil
+               else
+                 "%sS%02d" % [location, ip_d - 30]
+               end
+             when /\b10\.9\.[0-9]{1,3}\.(23[1-9]|240)\b/i then "%sS%02d" % [location, ip_d - 229]
+             when '10.9.145.6'  then "#{location}S0K1"
+             when '10.9.145.10' then "#{location}S101"
+             when '10.9.145.11' then "#{location}S102"
+             when '10.9.145.12' then "#{location}S111"
+             when '10.9.145.13' then "#{location}S112"
+             when '10.9.145.14' then "#{location}S121"
+             when '10.9.145.15' then "#{location}S122"
+             when '10.9.145.16' then "#{location}S131"
+             when '10.9.145.17' then "#{location}S132"
+             when '10.9.145.18' then "#{location}S141"
+             when '10.9.145.19' then "#{location}S142"
+             when '10.9.145.20' then "#{location}S151"
+             when '10.9.145.21' then "#{location}S152"
+             when '10.9.145.22' then "#{location}S161"
+             when '10.9.145.23' then "#{location}S162"
+             when '10.9.145.24' then "#{location}S311"
+             when '10.9.145.25' then "#{location}S312"
+             else ipaddress.to_s
+             end
+
+      name.upcase
     end
   end
 
@@ -99,6 +132,10 @@ module CheckMK
     def <=>(other)
       self.name <=> other.name
     end
+
+    def to_s
+      self.name
+    end
   end
 
 
@@ -111,32 +148,95 @@ module CheckMK
     ]
 
     TYPE_MAP = {
-      /\b10\.9\.[0-9]{3}\.1\b/ => 'router',
-      /switch|superstack/i     => 'switch',
+      'brickbox'   => /\b10\.9\.[0-9]{1,3}\.1\b/i,
+      'brickbox'   => /\b[a-z]{2}[0-9]{2}r[0-9]{2}\b/i,
+      'drac'       => /\b[a-z]{2}[0-9]{2}rb[cmv][0-9]{2}\b/i,
+      'printer'    => /brother.*nc/i, # u.a. Brother MFC-6490CW
+      'printer'    => /canon.*mx/i,
+      'printer'    => /dlink.*print/i,
+      'printer'    => /hp.*ethernet/i, # u.a. HP OfficeJet Pro 8600 N911a
+      'printer'    => /jetdirect/i,
+      'printer'    => /konica.*minolta/i,
+      'printer'    => /kyocera/i,
+      'printer'    => /lexmark/i,
+      'richtfunk'  => /airlaser|city.*link/i,
+      'server-tr'  => /\b[a-z]{2}[0-9]{2}sdm/i,
+      'server-tr'  => /\b[a-z]{2}[0-9]{2}srv/i,
+      'server-tr'  => /\b[a-z]{2}[0-9]{2}sto/i,
+      'server-tr'  => /\b[a-z]{2}[0-9]{2}svh/i,
+      'server-zpt' => /\b[a-z]{2}[0-9]{2}sdc/i,
+      'switch'     => /switch|superstack/i,
+      'tkanlage'   => /\b10\.9\.[0-9]{1,3}\.(23[0-9]|240)\b/i,
+      'tkanlage'   => /\b[a-z]{2}[0-9]{2}tk[0-9]{2}\b/i,
     }
 
     OPERATING_SYSTEM_MAP = {
-      /linux/i              => 'linux',
-      /microsoft.*windows/i => 'windows',
+      'drac'       => /dell.*remote.*access/i,
+      'drac'       => /linux.*rb[cm]/i,
+      'equallogic' => /equallogic|eqlappliance/i,
+      'linux'      => /linux.*srv/i,
+      'linux'      => /linux/i,
+      'vmware-esx' => /vmware.*esx/i,
+      'windows'    => /windows/i,
     }
 
     MODEL_MAP = {
-      /dell.*2900/i => 'dell-2900',
-      /dell.*r520/i => 'dell-r520',
-      /dell.*r710/i => 'dell-r710',
-      /dell.*t420/i => 'dell-t420',
+      'vmware-vm'             => /mac.*00:50:56.*vmware/i,
+      '3com-3824'             => /3com.*switch.*3824/i,
+      '3com-4400'             => /3com.*switch.*4400/i,
+      '3com-4500'             => /3com.*switch.*4500/i,
+      '3com-5500g'            => /3com.*switch.*5500g/i,
+      'canon-mx-850'          => /canon.*mx.*850/i,
+      'dell-2900'             => /poweredge.*2900/i,
+      'dell-r520'             => /poweredge.*r520/i,
+      'dell-r710'             => /poweredge.*r710/i,
+      'dell-t300'             => /poweredge.*t300/i,
+      'dell-t420'             => /poweredge.*t420/i,
+      'fsc-h250'              => /primergy.*h.*250/i,
+      'fsc-tx300'             => /primergy.*tx.*300/i,
+      'hipath-4000'           => /sco.*(open|unix)/i,
+      'hp-a5120'              => /hp.*a5120.*switch/i,
+      'hp-clj-3550'           => /hp.*color.*laserjet.*3550/i,
+      'hp-clj-3600'           => /hp.*color.*laserjet.*3600/i,
+      'hp-clj-4650'           => /hp.*color.*laserjet.*4650/i,
+      'hp-clj-cp3525'         => /hp.*color.*laserjet.*cp3525/i,
+      'koncia-magicolor-5450' => /konica.*5450/i,
+      'konica-bizhub-222'     => /konica.*222/i,
+      'lexmark-c734'          => /lexmark.*c734/i,
+      'lexmark-c746'          => /lexmark.*c746/i,
+      'lexmark-e460'          => /lexmark.*e460/i,
+      'lexmark-t640'          => /lexmark.*t640/i,
+      'lexmark-x463'          => /lexmark.*x463/i,
+      'lexmark-x464'          => /lexmark.*x464/i,
     }
 
     SERVICE_MAP = {
-      /dhcp/i   => 'dhcp',
-      /dns/i    => 'dns',
-      /http\b/i => 'http',
-      /https/i  => 'https',
-      /ldap\b/i => 'ldap',
-      /ldaps/i  => 'ldap',
-      /smtp\b/i => 'smtp',
-      /smtps/i  => 'smtps',
-      /ssh/i    => 'ssh',
+      'backupexecagent'  => /10000.*(ndmp|backup.*exec|snet-sensor)/i,
+      'backupexecserver' => /[^t][^r][^1][^0]sdm00|tr10sdm12\b/i,
+      'dhcp'             => /dhcp/i,
+      'dns'              => /dns|domain/i,
+      'empirumdepot'     => /sdm00\b/i,
+      'fileserver'       => /netbios/i,
+      'http'             => /http\b/i,
+      'https'            => /https/i,
+      'iperf'            => /iperf/i,
+      'iscsi'            => /iscsi/i,
+      'ldap'             => /ldap\b/i,
+      'ldap'             => /ldaps/i,
+      'mssql'            => /ms-sql-s/i,
+      'mssql2005'        => /sql.*server.*2005/i,
+      'mssql2008'        => /sql.*server.*2008/i,
+      'netlogon'         => /sdm00\b/i,
+      'officescanclient' => /12345.*(netbus|officescan)/i,
+      'printserver'      => /sdm00\b/i,
+      'profiles'         => /sdm00\b/i,
+      'rdp'              => /3389.*ms-wbt-server/i,
+      'rsync'            => /rsync/i,
+      'smtp'             => /smtp\b/i,
+      'smtps'            => /smtps/i,
+      'ssh'              => /ssh/i,
+      'user-p'           => /sdm00\b/i,
+      'wsus'             => /sdm00\b/i,
     }
 
     attr_accessor :locations
@@ -181,6 +281,8 @@ module CheckMK
           Detector.detect_device_properties(device)
         end
       end
+
+      self
     end
 
     def self.detect_device_properties(device)
