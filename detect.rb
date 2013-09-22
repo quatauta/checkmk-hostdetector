@@ -73,6 +73,41 @@ module CheckMK
   class Device
     include Comparable
 
+    NAME_MAP = {
+      # Router/Brickbox
+      "%<location>sR01" => { ipaddress: /\b10\.9\.[0-9]{1,3}\.1\b/i },
+      "%<location>sR11" => { ipaddress: /\b10\.190\.[0-9]{1,3}\.1\b/i },
+      "%<location>sR21" => { ipaddress: /\b10\.190\.[0-9]{1,3}\.16\b/i },
+
+      # Switches in TR01/TR10 (23-bit subnetmask)
+      "%<location>sS%<ipaddress_c>03d%<ipaddress_d>02d" => { ipaddress: /\b10\.9\.(112|113|114|115)\.3[1-9]\b/i,
+                                                             ipaddress_d: -30 },
+      # Switches in TR11, frist overwrite rule for all other switches
+      "" => { ipaddress: /\b10\.9\.[0-9]{1,3}\.3[1-9]\b/i, location: /tr11/i },
+      "%<location>sS0K1" => { ipaddress: /10.9.145.6/i,  location: /tr11/i },
+      "%<location>sS101" => { ipaddress: /10.9.145.10/i, location: /tr11/i },
+      "%<location>sS102" => { ipaddress: /10.9.145.11/i, location: /tr11/i },
+      "%<location>sS111" => { ipaddress: /10.9.145.12/i, location: /tr11/i },
+      "%<location>sS112" => { ipaddress: /10.9.145.13/i, location: /tr11/i },
+      "%<location>sS121" => { ipaddress: /10.9.145.14/i, location: /tr11/i },
+      "%<location>sS122" => { ipaddress: /10.9.145.15/i, location: /tr11/i },
+      "%<location>sS131" => { ipaddress: /10.9.145.16/i, location: /tr11/i },
+      "%<location>sS132" => { ipaddress: /10.9.145.17/i, location: /tr11/i },
+      "%<location>sS141" => { ipaddress: /10.9.145.18/i, location: /tr11/i },
+      "%<location>sS142" => { ipaddress: /10.9.145.19/i, location: /tr11/i },
+      "%<location>sS151" => { ipaddress: /10.9.145.20/i, location: /tr11/i },
+      "%<location>sS152" => { ipaddress: /10.9.145.21/i, location: /tr11/i },
+      "%<location>sS161" => { ipaddress: /10.9.145.22/i, location: /tr11/i },
+      "%<location>sS162" => { ipaddress: /10.9.145.23/i, location: /tr11/i },
+      "%<location>sS311" => { ipaddress: /10.9.145.24/i, location: /tr11/i },
+      "%<location>sS312" => { ipaddress: /10.9.145.25/i, location: /tr11/i },
+      # Standard switches
+      "%<location>sS%<ipaddress_d>02d" => { ipaddress: /\b10\.9\.[0-9]{1,3}\.3[1-9]\b/i },
+
+      # TK-Anlagen
+      "%<location>sTK%<ipaddress_d>02d" => { ipaddress: /\b10\.9\.[0-9]{1,3}\.(23[0-9]|240)\b/i, ipaddress_d: -229 },
+    }
+
     attr_accessor :name, :hostname, :ipaddress, :location
     attr_accessor :agent
     attr_accessor :criticality
@@ -103,42 +138,26 @@ module CheckMK
     end
 
     def self.name_from_ipaddress(location, ipaddress)
-      ip_c = ipaddress.to_s.split('.')[2].to_i
-      ip_d = ipaddress.to_s.split('.')[3].to_i
+      ipaddress_c = ipaddress.to_s.split('.')[2].to_i
+      ipaddress_d = ipaddress.to_s.split('.')[3].to_i
+      name        = ""
 
-      name = case ipaddress.to_s
-             when /\b10\.9\.[0-9]{1,3}\.1\b/i    then "#{location}R01"
-             when /\b10\.190\.[0-9]{1,3}\.1\b/i  then "#{location}R11"
-             when /\b10\.190\.[0-9]{1,3}\.16\b/i then "#{location}R21"
-             when /\b10\.9\.[0-9]{1,3}\.3[1-9]\b/i
-               case location
-               when /tr01|tr10/i
-                 "#{location}S%03d%02d" % [ip_c, ip_d - 229]
-               when /tr11/i
-                 nil
-               else
-                 "#{location}S%02d" % [ip_d - 30]
-               end
-             when /\b10\.9\.[0-9]{1,3}\.(23[1-9]|240)\b/i then "#{location}S%02d" % [ip_d - 229]
-             when '10.9.145.6'  then "#{location}S0K1"
-             when '10.9.145.10' then "#{location}S101"
-             when '10.9.145.11' then "#{location}S102"
-             when '10.9.145.12' then "#{location}S111"
-             when '10.9.145.13' then "#{location}S112"
-             when '10.9.145.14' then "#{location}S121"
-             when '10.9.145.15' then "#{location}S122"
-             when '10.9.145.16' then "#{location}S131"
-             when '10.9.145.17' then "#{location}S132"
-             when '10.9.145.18' then "#{location}S141"
-             when '10.9.145.19' then "#{location}S142"
-             when '10.9.145.20' then "#{location}S151"
-             when '10.9.145.21' then "#{location}S152"
-             when '10.9.145.22' then "#{location}S161"
-             when '10.9.145.23' then "#{location}S162"
-             when '10.9.145.24' then "#{location}S311"
-             when '10.9.145.25' then "#{location}S312"
-             else ipaddress.to_s
-             end
+      NAME_MAP.each_pair do |name_pattern, args|
+        ipaddress_match = ipaddress.to_s =~ args[:ipaddress]
+        location_match  = location.to_s  =~ (args[:location] || /./)
+
+        if ipaddress_match && location_match
+          name = name_pattern % { location:    location,
+                                  ipaddress:   ipaddress.to_s,
+                                  ipaddress_c: ipaddress_c + (args[:ipaddress_c] || 0),
+                                  ipaddress_d: ipaddress_d + (args[:ipaddress_d] || 0), }
+          break # Use only the first match from NAME_MAP
+        end
+      end
+
+      if name.to_s.empty?
+        name = ipaddress.to_s
+      end
 
       name.upcase
     end
