@@ -315,7 +315,7 @@ module CheckMK
               Detector.detect_device_properties(device)
             end
 
-            $stderr.puts("#{device.ipaddress} #{device.hostname} #{device.name} done")
+            $stderr.print("#{device.ipaddress} #{device.hostname} #{device.name} done\n")
           end
         end
       end
