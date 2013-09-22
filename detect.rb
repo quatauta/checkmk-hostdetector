@@ -300,7 +300,7 @@ module CheckMK
     end
 
     def detect_devices_properties!
-      pool = Thread::Pool.new(8)
+      pool = Thread.pool(8)
 
       self.locations.each do |location|
         location.devices.each do |device|
