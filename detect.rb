@@ -328,12 +328,12 @@ module CheckMK
       device
     end
 
-    def parse_locations(text = "")
+    def parse_locations(text = '')
       self.locations = Detector::parse_locations(text)
       self
     end
 
-    def self.parse_locations(text = "")
+    def self.parse_locations(text = '')
       locations = []
 
       text.each_line do |line|
