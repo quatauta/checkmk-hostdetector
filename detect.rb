@@ -258,7 +258,9 @@ module CheckMK
     def detect_devices!
       ## TODO Run detection in threads
       self.locations.each do |location|
+        $stderr.print("#{location.name} #{location.ranges.join(' ')} ... ")
         Detector.detect_devices(location)
+        $stderr.puts("#{location.devices.size} devices")
       end
 
       self
@@ -292,7 +294,9 @@ module CheckMK
       ## TODO Run detection in threads
       self.locations.each do |location|
         location.devices.each do |device|
+          $stderr.print("#{device.ipaddress} #{device.hostname} #{device.name} ... ")
           Detector.detect_device_properties(device)
+          $stderr.puts("done")
         end
       end
 
