@@ -4,6 +4,8 @@
 require 'ipaddr'
 require 'open4'
 require 'pp'
+require 'thread/pool'
+require 'timeout'
 
 
 module CheckMK
@@ -299,15 +301,21 @@ module CheckMK
     end
 
     def detect_devices_properties!
-      ## TODO Run detection in threads
+      pool = Thread::Pool.new(8)
+
       self.locations.each do |location|
         location.devices.each do |device|
-          $stderr.print("#{device.ipaddress} #{device.hostname} #{device.name} ... ")
-          Detector.detect_device_properties(device)
-          $stderr.puts("done")
+          task = pool.process do
+            timeout(120) do
+              Detector.detect_device_properties(device)
+            end
+
+            $stderr.puts("#{device.ipaddress} #{device.hostname} #{device.name} done")
+          end
         end
       end
 
+      pool.wait_done
       self
     end
 
