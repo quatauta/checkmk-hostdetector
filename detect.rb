@@ -265,13 +265,19 @@ module CheckMK
     attr_accessor :locations
 
     def detect_devices!
-      ## TODO Run detection in threads
+      pool = Thread.pool(8)
+
       self.locations.each do |location|
-        $stderr.print("#{location.name} #{location.ranges.join(' ')} ... ")
-        Detector.detect_devices(location)
-        $stderr.puts("#{location.devices.size} devices")
+        pool.process do
+          timeout(120) do
+            Detector.detect_devices(location)
+          end
+
+          $stderr.print("#{location.name} #{location.ranges.join(' ')}: #{location.devices.size} devices\n")
+        end
       end
 
+      pool.wait_done
       self
     end
 
