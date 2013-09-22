@@ -16,6 +16,13 @@ module CheckMK
       def self.scan(target, options = [])
         cmd = (['nmap'] + options + [target.to_s]).flatten
         status, stdout, stderr = Helper.exec(cmd)
+
+        if status != 0
+          cmd.reject! { |a| a =~ /-O/ }
+          pp cmd
+          status, stdout, stderr = Helper.exec(cmd)
+        end
+
         stdout.strip.lines.reject { |l| l =~ /Starting nmap.*http:\/\//i }.join('\n')
       end
     end
