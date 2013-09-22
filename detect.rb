@@ -2,32 +2,46 @@
 # vim:fileencoding=UTF-8 shiftwidth=2:
 
 require 'ipaddr'
+require 'open4'
 require 'pp'
 
 
 module CheckMK
   module Helper
     module NMAP
-      def self.ping(target, options = '')
-        self.scan(target, "-sP #{options}")
+      def self.ping(target, options = [])
+        self.scan(target, ['-sP'] + options)
       end
 
-      def self.scan(target, options = '')
-        `nmap #{options} #{target}`
-          .lines
-          .reject { |l| l =~ /Starting nmap .*http:\/\/.*nmap/i }
-          .join('\n')
+      def self.scan(target, options = [])
+        cmd = (['nmap'] + options + [target.to_s]).flatten
+        status, stdout, stderr = Helper.exec(cmd)
+        stdout.strip.lines.reject { |l| l =~ /Starting nmap.*http:\/\//i }.join('\n')
       end
     end
 
     module SNMP
       def self.status(agent, version: '2c', community: 'public')
-        `snmpstatus -v#{version} -c#{community} -mALL #{agent}`
+        cmd = ["snmpstatus", "-r0", "-v#{version}", "-c#{community}", "-mALL", agent.to_s]
+        status, stdout, stderr = Helper.exec(cmd)
+        stdout
       end
 
       def self.bulkget(agent, version: '2c', community: 'public', oids: [])
-        `snmpbulkget -v#{version} -c#{community} -mALL #{agent} #{oids.join(' ')}`
+        cmd = (["snmpbulkget", "-r0", "-v#{version}", "-c#{community}", "-mALL", agent.to_s] + oids).flatten
+        status, stdout, stderr = Helper.exec(cmd)
+        stdout
       end
+    end
+
+    def self.exec(cmd)
+      stdin  = ''
+      stdout = ''
+      stderr = ''
+      status = Open4::spawn(*cmd, 'stdin' => stdin, 'stdout' => stdout, 'stderr' => stderr,
+                            'raise' => false, 'quiet' => true)
+
+      [status, stdout, stderr]
     end
 
     def self.map(map, text)
@@ -253,7 +267,7 @@ module CheckMK
     def self.detect_devices(location)
       devices = []
 
-      Helper::NMAP.ping(location.ranges.join(' '), '-oG -')
+      Helper::NMAP.ping(location.ranges.join(' '), ['-oG', '-'])
         .lines
         .select {
           |l| l =~ /host.*status.*up/i
@@ -299,7 +313,7 @@ module CheckMK
       status << Helper::SNMP.bulkget(device.ipaddress.to_s,
                                      version: snmp,
                                      oids:    SNMP_STATUS_OIDS) if snmp
-      status << Helper::NMAP.scan(device.ipaddress.to_s, '-O')
+      status << Helper::NMAP.scan(device.ipaddress.to_s, ['-O'])
 
       device.networking      = 'lan'
       device.criticality     = 'prod'
