@@ -101,13 +101,13 @@ module CheckMK
              when /\b10\.9\.[0-9]{1,3}\.3[1-9]\b/i
                case location
                when /tr01|tr10/i
-                 "%sS%03d%02d" % [location, ip_c, ip_d - 229]
+                 "#{location}S%03d%02d" % [ip_c, ip_d - 229]
                when /tr11/i
                  nil
                else
-                 "%sS%02d" % [location, ip_d - 30]
+                 "#{location}S%02d" % [ip_d - 30]
                end
-             when /\b10\.9\.[0-9]{1,3}\.(23[1-9]|240)\b/i then "%sS%02d" % [location, ip_d - 229]
+             when /\b10\.9\.[0-9]{1,3}\.(23[1-9]|240)\b/i then "#{location}S%02d" % [ip_d - 229]
              when '10.9.145.6'  then "#{location}S0K1"
              when '10.9.145.10' then "#{location}S101"
              when '10.9.145.11' then "#{location}S102"
