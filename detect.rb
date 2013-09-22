@@ -304,7 +304,7 @@ module CheckMK
 
       self.locations.each do |location|
         location.devices.each do |device|
-          task = pool.process do
+          pool.process do
             timeout(120) do
               Detector.detect_device_properties(device)
             end
