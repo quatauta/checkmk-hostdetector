@@ -21,7 +21,6 @@ module CheckMK
 
         if status != 0
           cmd.reject! { |a| a =~ /-O/ }
-          pp cmd
           status, stdout, stderr = Helper.exec(cmd)
         end
 
