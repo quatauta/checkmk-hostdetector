@@ -313,7 +313,7 @@ module CheckMK
       status << Helper::SNMP.bulkget(device.ipaddress.to_s,
                                      version: snmp,
                                      oids:    SNMP_STATUS_OIDS) if snmp
-      status << Helper::NMAP.scan(device.ipaddress.to_s, ['-O'])
+      status << Helper::NMAP.scan(device.ipaddress.to_s, ['-O', '-sV'])
 
       device.networking      = 'lan'
       device.criticality     = 'prod'
