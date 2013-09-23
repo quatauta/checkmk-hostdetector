@@ -425,17 +425,14 @@ if __FILE__ == $0
   detector.detect_devices_properties!(CheckMK::Config.jobs)
 
   detector.locations.each do |location|
-    puts "#{location.name}: #{location.ranges.join(" ")}, #{location.devices.size} devices"
+    puts "#{location.name} #{location.ranges.join(" ")}: #{location.devices.size} devices"
 
     location.devices.each do |device|
       puts "  #{device.name}"
       puts "    hostname:  #{device.hostname}"
       puts "    ipaddress: #{device.ipaddress}"
       puts "    location:  #{device.location.name}"
-
-      device.tags.each_pair do |tag, value|
-        puts "    tag_#{tag}: #{value}"
-      end
+      puts "    tags:      " + device.tags.to_h.to_a.map { |a| a[0].to_s == a[1].to_s ? a[0].to_s : "#{a[0]}:#{a[1]}" }.sort.join(' ')
     end
   end
 end
