@@ -10,7 +10,6 @@ require 'open4'
 require 'ostruct'
 require 'pp'
 require 'thread/pool'
-require 'timeout'
 
 
 module CheckMK
@@ -287,10 +286,7 @@ module CheckMK
 
       self.locations.each do |location|
         pool.process do
-          timeout(120) do
-            Detector.detect_devices(location)
-          end
-
+          Detector.detect_devices(location)
           $stderr.print("#{location.name} #{location.ranges.join(' ')}: #{location.devices.size} devices\n")
         end
       end
@@ -329,10 +325,7 @@ module CheckMK
       self.locations.each do |location|
         location.devices.each do |device|
           pool.process do
-            timeout(120) do
-              Detector.detect_device_properties(device)
-            end
-
+            Detector.detect_device_properties(device)
             $stderr.print("#{device.ipaddress} #{device.hostname} #{device.name} done\n")
           end
         end
