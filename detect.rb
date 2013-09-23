@@ -303,7 +303,7 @@ module CheckMK
   class Detector
     attr_accessor :locations
 
-    def detect_devices!(jobs = 8)
+    def detect_devices(jobs = 8)
       pool        = Thread.pool(jobs)
       tasks       = []
       progressbar = ProgressBar.new("#{self.locations.size} Locations", self.locations.size)
@@ -346,7 +346,7 @@ module CheckMK
       location.devices = devices
     end
 
-    def detect_devices_properties!(jobs = 8)
+    def detect_devices_properties(jobs = 8)
       pool        = Thread.pool(jobs)
       tasks       = []
       count       = locations.reduce(0) { |sum, location| sum + location.devices.size }
@@ -421,8 +421,8 @@ if __FILE__ == $0
   detector = CheckMK::Detector.new
 
   detector.parse_locations(ARGF.read)
-  detector.detect_devices!(CheckMK::Config.jobs)
-  detector.detect_devices_properties!(CheckMK::Config.jobs)
+  detector.detect_devices(CheckMK::Config.jobs)
+  detector.detect_devices_properties(CheckMK::Config.jobs)
 
   detector.locations.each do |location|
     puts "#{location.name} #{location.ranges.join(" ")}: #{location.devices.size} devices"
