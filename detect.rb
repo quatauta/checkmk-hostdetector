@@ -1,11 +1,6 @@
 #!/usr/bin/env ruby
 # vim:fileencoding=UTF-8 shiftwidth=2:
 
-# This script needs rubygems:
-#  - open4 >= 1.3.0
-#  - progressbar >= 0.21.0
-#  - thread >= 0.1.1
-
 require 'ipaddr'
 require 'open4'
 require 'ostruct'
