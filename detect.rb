@@ -2,13 +2,16 @@
 # vim:fileencoding=UTF-8 shiftwidth=2:
 
 # This script needs rubygems:
-#  - open4  >= 1.3.0
+#  - open4 >= 1.3.0
+#  - progressbar >= 0.21.0
 #  - thread >= 0.1.1
 
 require 'ipaddr'
 require 'open4'
 require 'ostruct'
 require 'pp'
+require 'progressbar'
+require 'thread'
 require 'thread/pool'
 
 
@@ -282,16 +285,19 @@ module CheckMK
     attr_accessor :locations
 
     def detect_devices!(jobs = 8)
-      pool = Thread.pool(jobs)
+      pool        = Thread.pool(jobs)
+      progressbar = ProgressBar.new("#{self.locations.size} Locations", self.locations.size)
+      semaphore   = Mutex.new
 
       self.locations.each do |location|
         pool.process do
           Detector.detect_devices(location)
-          $stderr.print("#{location.name} #{location.ranges.join(' ')}: #{location.devices.size} devices\n")
+          semaphore.synchronize { progressbar.inc }
         end
       end
 
       pool.wait_done
+      progressbar.finish
       self
     end
 
@@ -320,18 +326,22 @@ module CheckMK
     end
 
     def detect_devices_properties!(jobs = 8)
-      pool = Thread.pool(jobs)
+      pool        = Thread.pool(jobs)
+      count       = locations.reduce(0) { |sum, location| sum + location.devices.size }
+      progressbar = ProgressBar.new("#{count} Devices", count)
+      semaphore   = Mutex.new
 
       self.locations.each do |location|
         location.devices.each do |device|
           pool.process do
             Detector.detect_device_properties(device)
-            $stderr.print("#{device.ipaddress} #{device.hostname} #{device.name} done\n")
+            semaphore.synchronize { progressbar.inc }
           end
         end
       end
 
       pool.wait_done
+      progressbar.finish
       self
     end
 
