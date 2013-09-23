@@ -7,6 +7,7 @@
 
 require 'ipaddr'
 require 'open4'
+require 'ostruct'
 require 'pp'
 require 'thread/pool'
 require 'timeout'
@@ -108,19 +109,13 @@ module CheckMK
       "%<location>sTK%<ipaddress_d>02d" => { ipaddress: /\b10\.9\.[0-9]{1,3}\.(23[0-9]|240)\b/i, ipaddress_d: -229 },
     }
 
-    attr_accessor :name, :hostname, :ipaddress, :location
-    attr_accessor :agent
-    attr_accessor :criticality
-    attr_accessor :model
-    attr_accessor :networking
-    attr_accessor :operatingsystem
-    attr_accessor :services
-    attr_accessor :type
+    attr_accessor :name, :hostname, :ipaddress, :location, :tags
 
     def initialize(hostname: nil, ipaddress: nil, location: nil)
       self.hostname  = hostname
       self.ipaddress = ipaddress
       self.location  = location
+      self.tags      = OpenStruct.new
 
       if self.hostname.to_s.empty?
         self.name = Device.name_from_ipaddress(self.location, self.ipaddress)
@@ -215,7 +210,7 @@ module CheckMK
       'tkanlage'   => /\b[a-z]{2}[0-9]{2}tk[0-9]{2}\b/i,
     }
 
-    OPERATING_SYSTEM_MAP = {
+    OS_MAP = {
       'drac'       => /dell.*remote.*access/i,
       'drac'       => /linux.*rb[cm]/i,
       'equallogic' => /equallogic|eqlappliance/i,
@@ -363,15 +358,15 @@ module CheckMK
                                      oids:    SNMP_STATUS_OIDS) if snmp
       status << Helper::NMAP.scan(device.ipaddress.to_s, ['-O', '-sV'])
 
-      device.networking      = 'lan'
-      device.criticality     = 'prod'
-      device.agent           = 'ping'    unless snmp
-      device.agent           = 'snmp'    if snmp == '2c'
-      device.agent           = 'snmp-v1' if snmp == '1'
-      device.type            = Helper.map(TYPE_MAP, status).first
-      device.model           = Helper.map(MODEL_MAP, status).first
-      device.operatingsystem = Helper.map(OPERATING_SYSTEM_MAP, status).first
-      device.services        = Helper.map(SERVICE_MAP, status)
+      device.tags.networking  = 'lan'
+      device.tags.criticality = 'prod'
+      device.tags.agent       = 'ping'    unless snmp
+      device.tags.agent       = 'snmp'    if snmp == '2c'
+      device.tags.agent       = 'snmp-v1' if snmp == '1'
+      Helper.map(TYPE_MAP,  status).take(1).each { |t|  device.tags.type  = t }
+      Helper.map(MODEL_MAP, status).take(1).each { |m|  device.tags.model = m }
+      Helper.map(OS_MAP,    status).take(1).each { |os| device.tags.operatingsystem = os }
+      Helper.map(SERVICE_MAP, status).each { |s| device.tags[s] = s }
 
       device
     end
@@ -408,16 +403,13 @@ if __FILE__ == $0
 
     location.devices.each do |device|
       puts "  #{device.name}"
-      puts "    hostname:        #{device.hostname}"
-      puts "    ipaddress:       #{device.ipaddress}"
-      puts "    location:        #{device.location.name}"
-      puts "    networking:      #{device.networking}"
-      puts "    criticality:     #{device.criticality}"
-      puts "    agent:           #{device.agent}"
-      puts "    type:            #{device.type}"
-      puts "    model:           #{device.model}"
-      puts "    operatingsystem: #{device.operatingsystem}"
-      puts "    services:        #{device.services}"
+      puts "    hostname:  #{device.hostname}"
+      puts "    ipaddress: #{device.ipaddress}"
+      puts "    location:  #{device.location.name}"
+
+      device.tags.each_pair do |tag, value|
+        puts "    tag_#{tag}: #{value}"
+      end
     end
   end
 end
