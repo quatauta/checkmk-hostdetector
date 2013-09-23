@@ -287,8 +287,8 @@ module CheckMK
 
     attr_accessor :locations
 
-    def detect_devices!
-      pool = Thread.pool(8)
+    def detect_devices!(jobs = 8)
+      pool = Thread.pool(jobs)
 
       self.locations.each do |location|
         pool.process do
@@ -328,8 +328,8 @@ module CheckMK
       location.devices = devices
     end
 
-    def detect_devices_properties!
-      pool = Thread.pool(8)
+    def detect_devices_properties!(jobs = 8)
+      pool = Thread.pool(jobs)
 
       self.locations.each do |location|
         location.devices.each do |device|
