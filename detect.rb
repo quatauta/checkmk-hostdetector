@@ -167,8 +167,9 @@ module CheckMK
     attr_accessor :name, :ranges, :devices
 
     def initialize(name, ranges: [])
-      self.name   = name
-      self.ranges = ranges
+      self.name    = name
+      self.devices = []
+      self.ranges  = ranges
     end
 
     def <=>(other)
