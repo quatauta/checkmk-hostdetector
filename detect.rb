@@ -286,11 +286,12 @@ module CheckMK
 
     def detect_devices!(jobs = 8)
       pool        = Thread.pool(jobs)
+      tasks       = []
       progressbar = ProgressBar.new("#{self.locations.size} Locations", self.locations.size)
       semaphore   = Mutex.new
 
       self.locations.each do |location|
-        pool.process do
+        tasks << pool.process do
           Detector.detect_devices(location)
           semaphore.synchronize { progressbar.inc }
         end
@@ -298,6 +299,7 @@ module CheckMK
 
       pool.wait_done
       progressbar.finish
+      tasks.map { |t| t.exception }.compact.each { |e| raise e }
       self
     end
 
@@ -327,13 +329,14 @@ module CheckMK
 
     def detect_devices_properties!(jobs = 8)
       pool        = Thread.pool(jobs)
+      tasks       = []
       count       = locations.reduce(0) { |sum, location| sum + location.devices.size }
       progressbar = ProgressBar.new("#{count} Devices", count)
       semaphore   = Mutex.new
 
       self.locations.each do |location|
         location.devices.each do |device|
-          pool.process do
+          tasks << pool.process do
             Detector.detect_device_properties(device)
             semaphore.synchronize { progressbar.inc }
           end
@@ -342,6 +345,7 @@ module CheckMK
 
       pool.wait_done
       progressbar.finish
+      tasks.map { |t| t.exception }.compact.each { |e| raise e }
       self
     end
 
