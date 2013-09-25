@@ -15,173 +15,69 @@ end
 
 
 module CheckMK
-  class Config
-    def initialize
-      files = [
-        File.join(File::SEPARATOR, 'etc', File.basename($0, '.rb'), 'config.rb'),
-        File.join(File::SEPARATOR, 'etc', File.basename($0, '.rb') + '.cfg'),
-        File.join('~', '.config', File.basename($0, '.rb'), 'config.rb'),
-        File.join('~', '.config', File.basename($0, '.rb') + '.cfg'),
-        File.join(File.dirname($0), 'config.rb'),
-        File.join(File.dirname($0), File.basename($0, '.rb') + '.cfg'),
-      ].uniq
+  class Config < OpenStruct
+    @@singleton = self.new
 
-      config = OpenStruct.new
-
-      Dir.glob(files).each do |file|
-        eval(File.read(file))
-      end
+    def self.load
+      @@singleton = self.new
     end
 
     def self.jobs
-      8
+      @@singleton.jobs
     end
 
-    def self.name_map
-      {
-        # Router/Brickbox
-        "%<location>sR01" => { ipaddress: /\b10\.9\.[0-9]{1,3}\.1\b/i },
-        "%<location>sR11" => { ipaddress: /\b10\.190\.[0-9]{1,3}\.1\b/i },
-        "%<location>sR21" => { ipaddress: /\b10\.190\.[0-9]{1,3}\.16\b/i },
-
-        # Switches in TR01/TR10 (23-bit subnetmask)
-        "%<location>sS%<ipaddress_c>03d%<ipaddress_d>02d" => { ipaddress: /\b10\.9\.(112|113|114|115)\.3[1-9]\b/i,
-                                                               ipaddress_d: -30 },
-        # Switches in TR11, frist overwrite rule for all other switches
-        "" => { ipaddress: /\b10\.9\.[0-9]{1,3}\.3[1-9]\b/i, location: /tr11/i },
-        "%<location>sS0K1" => { ipaddress: /10.9.145.6/i,  location: /tr11/i },
-        "%<location>sS101" => { ipaddress: /10.9.145.10/i, location: /tr11/i },
-        "%<location>sS102" => { ipaddress: /10.9.145.11/i, location: /tr11/i },
-        "%<location>sS111" => { ipaddress: /10.9.145.12/i, location: /tr11/i },
-        "%<location>sS112" => { ipaddress: /10.9.145.13/i, location: /tr11/i },
-        "%<location>sS121" => { ipaddress: /10.9.145.14/i, location: /tr11/i },
-        "%<location>sS122" => { ipaddress: /10.9.145.15/i, location: /tr11/i },
-        "%<location>sS131" => { ipaddress: /10.9.145.16/i, location: /tr11/i },
-        "%<location>sS132" => { ipaddress: /10.9.145.17/i, location: /tr11/i },
-        "%<location>sS141" => { ipaddress: /10.9.145.18/i, location: /tr11/i },
-        "%<location>sS142" => { ipaddress: /10.9.145.19/i, location: /tr11/i },
-        "%<location>sS151" => { ipaddress: /10.9.145.20/i, location: /tr11/i },
-        "%<location>sS152" => { ipaddress: /10.9.145.21/i, location: /tr11/i },
-        "%<location>sS161" => { ipaddress: /10.9.145.22/i, location: /tr11/i },
-        "%<location>sS162" => { ipaddress: /10.9.145.23/i, location: /tr11/i },
-        "%<location>sS311" => { ipaddress: /10.9.145.24/i, location: /tr11/i },
-        "%<location>sS312" => { ipaddress: /10.9.145.25/i, location: /tr11/i },
-        # Standard switches
-        "%<location>sS%<ipaddress_d>02d" => { ipaddress: /\b10\.9\.[0-9]{1,3}\.3[1-9]\b/i },
-
-        # TK-Anlagen
-        "%<location>sTK%<ipaddress_d>02d" => { ipaddress: /\b10\.9\.[0-9]{1,3}\.(23[0-9]|240)\b/i, ipaddress_d: -229 },
-      }
+    def self.models
+      @@singleton.models
     end
 
-    def self.snmp_status_oids
-      [
-        'sysDescr',
-        'sysObjectID',
-        'MIB-Dell-CM::dell.10892.1.300.10.1.9',
-        'SNMPv2-SMI::enterprises.231.2.10.2.2.5.10.3.1.4',
-      ]
+    def self.names
+      @@singleton.names
     end
 
-    def self.model_map
-      {
-        'vmware-vm'             => /mac.*00:50:56.*vmware/i,
-        '3com-3824'             => /3com.*switch.*3824/i,
-        '3com-4400'             => /3com.*switch.*4400/i,
-        '3com-4500'             => /3com.*switch.*4500/i,
-        '3com-5500g'            => /3com.*switch.*5500g/i,
-        'canon-mx-850'          => /canon.*mx.*850/i,
-        'dell-2900'             => /poweredge.*2900/i,
-        'dell-r520'             => /poweredge.*r520/i,
-        'dell-r710'             => /poweredge.*r710/i,
-        'dell-t300'             => /poweredge.*t300/i,
-        'dell-t420'             => /poweredge.*t420/i,
-        'fsc-h250'              => /primergy.*h.*250/i,
-        'fsc-tx300'             => /primergy.*tx.*300/i,
-        'hipath-4000'           => /sco.*(open|unix)/i,
-        'hp-a5120'              => /hp.*a5120.*switch/i,
-        'hp-clj-3550'           => /hp.*color.*laserjet.*3550/i,
-        'hp-clj-3600'           => /hp.*color.*laserjet.*3600/i,
-        'hp-clj-4650'           => /hp.*color.*laserjet.*4650/i,
-        'hp-clj-cp3525'         => /hp.*color.*laserjet.*cp3525/i,
-        'koncia-magicolor-5450' => /konica.*5450/i,
-        'konica-bizhub-222'     => /konica.*222/i,
-        'lexmark-c734'          => /lexmark.*c734/i,
-        'lexmark-c746'          => /lexmark.*c746/i,
-        'lexmark-e460'          => /lexmark.*e460/i,
-        'lexmark-t640'          => /lexmark.*t640/i,
-        'lexmark-x463'          => /lexmark.*x463/i,
-        'lexmark-x464'          => /lexmark.*x464/i,
-      }
+    def self.operatingsystems
+      @@singleton.operatingsystems
     end
 
-    def self.os_map
-      {
-        'drac'       => /dell.*remote.*access/i,
-        'drac'       => /linux.*rb[cm]/i,
-        'equallogic' => /equallogic|eqlappliance/i,
-        'linux'      => /linux.*srv/i,
-        'linux'      => /linux/i,
-        'vmware-esx' => /vmware.*esx/i,
-        'windows'    => /windows/i,
-      }
+    def self.services
+      @@singleton.services
     end
 
-    def self.service_map
-      {
-        'backupexecagent'  => /10000.*(ndmp|backup.*exec|snet-sensor)/i,
-        'backupexecserver' => /[^t][^r][^1][^0]sdm00|tr10sdm12\b/i,
-        'dhcp'             => /dhcp/i,
-        'dns'              => /53.*(dns|domain)/i,
-        'empirumdepot'     => /sdm00\b/i,
-        'fileserver'       => /13[789].*netbios/i,
-        'http'             => /80.*http\b/i,
-        'https'            => /443.*(https|ssl.*http)/i,
-        'iperf'            => /5001.*iperf/i,
-        'iscsi'            => /(860|3260).*iscsi/i,
-        'ldap'             => /389.*ldap\b/i,
-        'ldaps'            => /636.*(ldaps|ssl.*ldap)/i,
-        'mssql'            => /1433.*ms-sql-s/i,
-        'mysql'            => /3306.*mysql/i,
-        'mssql2005'        => /sql.*server.*2005/i,
-        'mssql2008'        => /sql.*server.*2008/i,
-        'netlogon'         => /sdm00\b/i,
-        'officescanclient' => /12345.*(netbus|officescan)/i,
-        'printserver'      => /sdm00\b/i,
-        'profiles'         => /sdm00\b/i,
-        'rdp'              => /3389.*ms-wbt-server/i,
-        'rsync'            => /873.*rsync/i,
-        'smtp'             => /25.*smtp\b/i,
-        'smtps'            => /465.*(smtps|ssl.*smtp)/i,
-        'ssh'              => /22.*ssh/i,
-        'user-p'           => /sdm00\b/i,
-        'wsus'             => /sdm00\b/i,
-      }
+    def self.snmp_oids
+      @@singleton.snmp_oids
     end
 
-    def self.type_map
-      {
-        'brickbox'   => /\b10\.9\.[0-9]{1,3}\.1\b/i,
-        'brickbox'   => /\b[a-z]{2}[0-9]{2}r[0-9]{2}\b/i,
-        'drac'       => /\b[a-z]{2}[0-9]{2}rb[cmv][0-9]{2}\b/i,
-        'printer'    => /brother.*nc/i, # u.a. Brother MFC-6490CW
-        'printer'    => /canon.*mx/i,
-        'printer'    => /dlink.*print/i,
-        'printer'    => /hp.*ethernet/i, # u.a. HP OfficeJet Pro 8600 N911a
-        'printer'    => /jetdirect/i,
-        'printer'    => /konica.*minolta/i,
-        'printer'    => /kyocera/i,
-        'printer'    => /lexmark/i,
-        'richtfunk'  => /airlaser|city.*link/i,
-        'server-tr'  => /\b[a-z]{2}[0-9]{2}sdm/i,
-        'server-tr'  => /\b[a-z]{2}[0-9]{2}srv/i,
-        'server-tr'  => /\b[a-z]{2}[0-9]{2}sto/i,
-        'server-tr'  => /\b[a-z]{2}[0-9]{2}svh/i,
-        'server-zpt' => /\b[a-z]{2}[0-9]{2}sdc/i,
-        'switch'     => /switch|superstack/i,
-        'tkanlage'   => /\b10\.9\.[0-9]{1,3}\.(23[0-9]|240)\b/i,
-        'tkanlage'   => /\b[a-z]{2}[0-9]{2}tk[0-9]{2}\b/i,
-      }
+    def self.types
+      @@singleton.types
+    end
+
+    def initialize
+      super
+
+      config = OpenStruct.new
+      dir    = File.dirname($0)
+      name   = File.basename($0, '.rb')
+
+      files = [
+        [ENV['%ProgramFiles(x86)%'], name, 'config.rb'],
+        [ENV['%ProgramFiles%'],      name, 'config.rb'],
+        [ENV['%ProgramData%'],       name, 'config.rb'],
+        [ENV['%AppData%'],           name, 'config.rb'],
+        ['', 'usr',          'share', name, 'config.rb'],
+        ['', 'usr', 'local', 'share', name, 'config.rb'],
+        ['', 'etc', name, 'config.rb'],
+        ['', 'etc', name + '.cfg'],
+        ['~', '.config', name, 'config.rb'],
+        ['~', '.config', name + '.cfg'],
+        ['~', '.' + name, 'config.rb'],
+        ['~', '.' + name + '.cfg'],
+        [dir, 'config.rb'],
+        [dir, name + '.cfg'],
+      ].select { |a| a.all? { |e| e } } .map { |a| File.join(a) }
+
+      Dir.glob(files).each { |file| eval(File.read(file)) }
+      config.each_pair { |k,v| self[k] = v }
+
+      self
     end
   end
 
@@ -439,6 +335,8 @@ end
 
 
 if __FILE__ == $0
+  CheckMK::Config.load
+
   detector = CheckMK::Detector.new
 
   detector.parse_locations(ARGF.read)
