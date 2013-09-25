@@ -299,21 +299,10 @@ module CheckMK
     attr_accessor :locations
 
     def detect_devices(jobs = 8)
-      pool        = Thread.pool(jobs)
-      tasks       = []
-      progressbar = ProgressBar.new("#{self.locations.size} Locations", self.locations.size)
-      semaphore   = Mutex.new
-
-      self.locations.each do |location|
-        tasks << pool.process do
-          Detector.detect_devices(location)
-          semaphore.synchronize { progressbar.inc }
-        end
+      Detector.progressbar_thread_pool(title: "Locations", elements: self.locations, jobs: jobs) do |location|
+        Detector.detect_devices(location)
       end
 
-      pool.wait_done
-      progressbar.finish
-      tasks.map { |t| t.exception }.compact.each { |e| raise e }
       self
     end
 
@@ -342,24 +331,12 @@ module CheckMK
     end
 
     def detect_devices_properties(jobs = 8)
-      pool        = Thread.pool(jobs)
-      tasks       = []
-      count       = locations.reduce(0) { |sum, location| sum + location.devices.size }
-      progressbar = ProgressBar.new("#{count} Devices", count)
-      semaphore   = Mutex.new
+      devices = self.locations.inject([]) { |a, location| a.push(*location.devices) }
 
-      self.locations.each do |location|
-        location.devices.each do |device|
-          tasks << pool.process do
-            Detector.detect_device_properties(device)
-            semaphore.synchronize { progressbar.inc }
-          end
-        end
+      Detector.progressbar_thread_pool(title: "Devices", elements: devices, jobs: jobs) do |device|
+        Detector.detect_device_properties(device)
       end
 
-      pool.wait_done
-      progressbar.finish
-      tasks.map { |t| t.exception }.compact.each { |e| raise e }
       self
     end
 
@@ -407,6 +384,24 @@ module CheckMK
       end
 
       locations
+    end
+
+    def self.progressbar_thread_pool(title: "", elements: [], jobs: 1, &block)
+      pool        = Thread.pool(jobs)
+      tasks       = []
+      progressbar = ProgressBar.new("#{elements.size} #{title}", elements.size)
+      semaphore   = Mutex.new
+
+      elements.each do |e|
+        tasks << pool.process do
+          yield(e)
+          semaphore.synchronize { progressbar.inc }
+        end
+      end
+
+      pool.wait_done
+      progressbar.finish
+      tasks.map { |t| t.exception }.compact.each { |e| raise e }
     end
   end
 end
