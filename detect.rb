@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8 shiftwidth=2:
 
 require 'ipaddr'
-require 'open4'
+require 'open3'
 require 'ostruct'
 require 'pp'
 require 'progressbar'
@@ -199,11 +199,15 @@ module CheckMK
     end
 
     def self.exec(cmd)
-      stdin  = ''
       stdout = ''
       stderr = ''
-      status = Open4::spawn(*cmd, 'stdin' => stdin, 'stdout' => stdout, 'stderr' => stderr,
-                            'raise' => false, 'quiet' => true)
+      status = 0
+
+      begin
+        stdout, strerr, status = Open3.capture3(*cmd)
+      rescue Errno::ENOENT => e
+        # TODO Test for nmap and snmpstatus at script start
+      end
 
       [status, stdout, stderr]
     end
