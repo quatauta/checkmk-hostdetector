@@ -5,13 +5,34 @@ require 'ipaddr'
 require 'open3'
 require 'ostruct'
 require 'pp'
-require 'progressbar'
-require 'thread'
-require 'thread/pool'
+
+# optional ruby gems
+begin
+  require 'progressbar'
+  require 'thread/pool'
+rescue LoadError
+end
 
 
 module CheckMK
   class Config
+    def initialize
+      files = [
+        File.join(File::SEPARATOR, 'etc', File.basename($0, '.rb'), 'config.rb'),
+        File.join(File::SEPARATOR, 'etc', File.basename($0, '.rb') + '.cfg'),
+        File.join('~', '.config', File.basename($0, '.rb'), 'config.rb'),
+        File.join('~', '.config', File.basename($0, '.rb') + '.cfg'),
+        File.join(File.dirname($0), 'config.rb'),
+        File.join(File.dirname($0), File.basename($0, '.rb') + '.cfg'),
+      ].uniq
+
+      config = OpenStruct.new
+
+      Dir.glob(files).each do |file|
+        eval(File.read(file))
+      end
+    end
+
     def self.jobs
       8
     end
@@ -391,20 +412,26 @@ module CheckMK
     end
 
     def self.progressbar_thread_pool(title: "", elements: [], jobs: 1, &block)
-      pool        = Thread.pool(jobs)
+      pool        = Thread.pool(jobs) if (jobs > 1) && Thread.method_defined?(:pool)
       tasks       = []
-      progressbar = ProgressBar.new("#{elements.size} #{title}", elements.size)
+      progressbar = ProgressBar.new("#{elements.size} #{title}", elements.size) if Kernel.const_defined? :ProgressBar
       semaphore   = Mutex.new
 
       elements.each do |e|
-        tasks << pool.process do
+        yield_inc = proc {
           yield(e)
-          semaphore.synchronize { progressbar.inc }
+          semaphore.synchronize { progressbar.inc } if progressbar
+        }
+
+        if pool
+          tasks << pool.process { yield_inc.call }
+        else
+          yield_inc.call
         end
       end
 
-      pool.wait_done
-      progressbar.finish
+      pool.wait_done if pool
+      progressbar.finish if progressbar
       tasks.map { |t| t.exception }.compact.each { |e| raise e }
     end
   end
