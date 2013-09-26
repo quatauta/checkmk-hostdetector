@@ -1,3 +1,6 @@
+# -*- coding: utf-8-unix; mode: ruby; -*-
+# vim:set fileencoding=UTF-8 syntax=ruby:
+
 module CheckMK
   # Read rails-like configuration from YAML-file with environments (like production,
   # development, test, ...). Take a look at rails database configuration files for
