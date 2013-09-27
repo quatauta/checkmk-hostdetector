@@ -7,7 +7,10 @@ Gemfile.lock
 InstalledFiles/
 _yardoc/
 coverage/
-doc/
+doc/coverage/
+doc/rdoc/
+doc/yard/
+doc/spec/
 html/
 pkg/
 rdoc/
