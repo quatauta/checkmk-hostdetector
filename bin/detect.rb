@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# -*- coding: utf-8-unix; mode: ruby; -*-
+# -*- coding: UTF-8; mode: ruby; -*-
 # vim:set fileencoding=UTF-8 syntax=ruby:
 
 require 'checkmk/devicedetector'

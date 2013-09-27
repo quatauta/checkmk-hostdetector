@@ -1,4 +1,4 @@
-# Checkmk::Device::Detector
+# CheckMK::Device::Detector
 
 TODO: Write a gem description
 

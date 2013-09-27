@@ -1,11 +1,13 @@
-# coding: utf-8
+# -*- coding: UTF-8; -*-
+# vim:set fileencoding=UTF-8:
+
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'checkmk/devicedetector/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "checkmk-device-detector"
-  spec.version       = Checkmk::DeviceDetector::VERSION
+  spec.version       = CheckMK::DeviceDetector::VERSION
   spec.authors       = ["Daniel Schömer"]
   spec.email         = ["daniel.schoemer@gmx.net"]
   spec.description   = %q{Build CheckMK/Multisite/WATO configuration files for networking devices. Devices are found with nmap. Device properties like vendor/product and offered services are detected using nmap and net-snmp.}

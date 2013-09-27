@@ -1,5 +1,5 @@
-# -*- coding: utf-8-unix; mode: ruby; -*-
-# vim:set fileencoding=UTF-8 syntax=ruby:
+# -*- coding: UTF-8; -*-
+# vim:set fileencoding=UTF-8:
 
 module CheckMK
   module DeviceDetector
@@ -44,7 +44,7 @@ module CheckMK
       # object initialization
       def define_methods_for_environment
         data[env].each do |name, value|
-          instance_eval 'def %s \n "%s" \n end' % { name, value }
+          instance_eval 'def %s \n "%s" \n end' % [ name, value ]
         end
       end
     end
