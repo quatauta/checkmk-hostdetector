@@ -1,14 +1,14 @@
 # -*- coding: UTF-8; -*-
 # vim:set fileencoding=UTF-8:
 
-require 'checkmk/devicedetector/config'
-require 'checkmk/devicedetector/device'
-require 'checkmk/devicedetector/helper'
-require 'checkmk/devicedetector/location'
-require 'checkmk/devicedetector/version'
+require 'checkmk/devicedetector'
 require 'ipaddr'
-require 'progressbar'
-require 'thread/pool'
+
+begin
+  require 'progressbar'
+  require 'thread/pool'
+rescue LoadError
+end
 
 
 module CheckMK
