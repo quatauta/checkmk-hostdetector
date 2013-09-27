@@ -1,5 +1,5 @@
-# -*- coding: UTF-8; -*-
-# vim:set fileencoding=UTF-8:
+# -*- coding: utf-8; -*-
+# vim:set fileencoding=utf-8:
 
 require 'checkmk/devicedetector/config'
 

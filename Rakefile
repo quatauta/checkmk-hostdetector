@@ -1,5 +1,5 @@
 # -*- coding: utf-8; -*-
-# vim:set fileencoding=UTF-8:
+# vim:set fileencoding=utf-8:
 
 begin
   require 'bundler/gem_tasks'
@@ -24,7 +24,7 @@ namespace :doc do
       task.rdoc_files.include('bin/**/*.rb', 'lib/**/*.rb', 'doc/*.md')
       task.rdoc_dir = 'doc/rdoc'
       task.options << '--all'
-      task.options << '--charset=UTF-8'
+      task.options << '--charset=utf-8'
       task.options << '--hyperlink-all'
       task.options << '--inline-source'
       task.options << '--show-hash'

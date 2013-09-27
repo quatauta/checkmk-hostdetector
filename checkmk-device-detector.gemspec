@@ -1,5 +1,5 @@
-# -*- coding: UTF-8; -*-
-# vim:set fileencoding=UTF-8:
+# -*- coding: utf-8; -*-
+# vim:set fileencoding=utf-8:
 
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
