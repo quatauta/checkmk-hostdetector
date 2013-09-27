@@ -2,15 +2,15 @@
 # -*- coding: utf-8-unix; mode: ruby; -*-
 # vim:set fileencoding=UTF-8 syntax=ruby:
 
-require 'checkmk'
+require 'checkmk/devicedetector'
 
-CheckMK::Config.load
+CheckMK::DeviceDetector::Config.load
 
-detector = CheckMK::Detector.new
+detector = CheckMK::DeviceDetector::Detector.new
 
 detector.parse_locations(ARGF.read)
-detector.detect_devices(CheckMK::Config.jobs)
-detector.detect_devices_properties(CheckMK::Config.jobs)
+detector.detect_devices(CheckMK::DeviceDetector::Config.jobs)
+detector.detect_devices_properties(CheckMK::DeviceDetector::Config.jobs)
 
 detector.locations.each do |location|
   puts "#{location.name} #{location.ranges.join(" ")}: #{location.devices.size} devices"

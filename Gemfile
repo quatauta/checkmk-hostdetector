@@ -1,4 +1,6 @@
 source 'https://rubygems.org'
+source 'http://gems.github.com'
 
-gem 'progressbar'
-gem 'thread'
+
+# Specify your gem's dependencies in checkmk-device-detector.gemspec
+gemspec
