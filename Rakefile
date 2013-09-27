@@ -1,24 +1,43 @@
-# -*- coding: UTF-8; -*-
+# -*- coding: utf-8; -*-
 # vim:set fileencoding=UTF-8:
 
 begin
   require 'bundler/gem_tasks'
-  require 'rdoc/task'
-  require 'yard'
 rescue
 end
 
-if Rake.const_defined? :RDocTask
 namespace :doc do
-  Rake::RDocTask.new(:rdoc) do |task|
-    task.options + ['-a', '--inline-source', '--charset=UTF-8']
-  end
-end
+  desc 'Build api docs with rdoc and yard if possible'
+  task :all
+
+  desc 'Delete generated docs'
+  task :clobber
 end
 
-if Module.const_defined?(:YARD) && YARD.const_defined?(:Rake) && YARD::Rake.const_defined?(:YardocTask)
-  namespace :doc do
-    YARD::Rake::YardocTask.new(:yard) do |task|
+namespace :doc do
+  begin
+    require 'rdoc/task'
+
+    task :all => [:rdoc]
+    task :clobber => [:clobber_rdoc]
+    Rake::RDocTask.new(:rdoc) do |task|
+      task.rdoc_files.include('bin/**/*.rb', 'lib/**/*.rb', 'doc/*.md')
+      task.rdoc_dir = 'doc/rdoc'
+      task.options << '--all'
+      task.options << '--charset=UTF-8'
+      task.options << '--hyperlink-all'
+      task.options << '--inline-source'
+      task.options << '--show-hash'
     end
+  rescue LoadError
+  end
+end
+
+namespace :doc do
+  begin
+    require 'yard'
+    task :all => [:yard]
+    YARD::Rake::YardocTask.new
+  rescue LoadError
   end
 end
