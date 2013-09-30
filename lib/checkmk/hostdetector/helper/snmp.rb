@@ -1,10 +1,10 @@
 # -*- coding: utf-8; -*-
 # vim:set fileencoding=utf-8:
 
-require 'checkmk/devicedetector/helper'
+require 'checkmk/hostdetector/helper'
 
 module CheckMK
-  module DeviceDetector
+  module HostDetector
     module Helper
       module Snmp
         def self.status(agent, version: '2c', community: 'public')

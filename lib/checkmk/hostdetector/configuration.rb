@@ -2,7 +2,7 @@
 # vim:set fileencoding=utf-8:
 
 module CheckMK
-  module DeviceDetector
+  module HostDetector
     # Read rails-like configuration from YAML-file with environments (like production,
     # development, test, ...). Take a look at rails database configuration files for
     # examples.

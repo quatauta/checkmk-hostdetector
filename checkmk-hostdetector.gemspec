@@ -3,15 +3,15 @@
 
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'checkmk/devicedetector/version'
+require 'checkmk/hostdetector/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "checkmk-device-detector"
-  spec.version       = CheckMK::DeviceDetector::VERSION
+  spec.name          = "checkmk-hostdetector"
+  spec.version       = CheckMK::HostDetector::VERSION
   spec.authors       = ["Daniel Schömer"]
   spec.email         = ["daniel.schoemer@gmx.net"]
-  spec.description   = %q{Build CheckMK/Multisite/WATO configuration files for networking devices. Devices are found with nmap. Device properties like vendor/product and offered services are detected using nmap and net-snmp.}
-  spec.summary       = %q{CheckMK/Multisite/WATO configuration for networking devices using on nmap/net-snmp}
+  spec.description   = %q{Build CheckMK/Multisite/WATO configuration files for networking hosts. Hosts are found with nmap. Host properties like vendor/product and offered services are detected using nmap and net-snmp.}
+  spec.summary       = %q{CheckMK/Multisite/WATO configuration for networking hosts using on nmap/net-snmp}
   spec.homepage      = "https://github.com/quatauta/#{spec.name}"
   spec.license       = "MIT"
 

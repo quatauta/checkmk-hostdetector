@@ -1,11 +1,11 @@
 # -*- coding: utf-8; -*-
 # vim:set fileencoding=utf-8:
 
-require 'checkmk/devicedetector/config'
+require 'checkmk/hostdetector/config'
 
 module CheckMK
-  module DeviceDetector
-    class Device
+  module HostDetector
+    class Host
       include Comparable
 
       attr_accessor :name, :hostname, :ipaddress, :site, :tags
@@ -17,7 +17,7 @@ module CheckMK
         self.tags      = OpenStruct.new
 
         if hostname.to_s.empty?
-          self.name = Device.name_from_ipaddress(site, ipaddress)
+          self.name = Host.name_from_ipaddress(site, ipaddress)
         else
           self.name = hostname.sub(/\..*/i, '').upcase
         end

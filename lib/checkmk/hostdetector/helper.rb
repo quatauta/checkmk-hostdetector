@@ -4,10 +4,10 @@
 require 'open3'
 
 module CheckMK
-  module DeviceDetector
+  module HostDetector
     module Helper
-      autoload :Nmap, 'checkmk/devicedetector/helper/nmap'
-      autoload :Snmp, 'checkmk/devicedetector/helper/snmp'
+      autoload :Nmap, 'checkmk/hostdetector/helper/nmap'
+      autoload :Snmp, 'checkmk/hostdetector/helper/snmp'
 
       def self.exec(cmd)
         stdout, stderr, status = Open3.capture3(*cmd)

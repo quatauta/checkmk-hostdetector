@@ -1,10 +1,10 @@
-# CheckMK::Device::Detector
+# CheckMK::Host::Detector
 
 TODO: Write a gem description
 
 ## Installation
 
-    $ gem install checkmk-device-detector
+    $ gem install checkmk-hostdetector
 
 ## Usage
 

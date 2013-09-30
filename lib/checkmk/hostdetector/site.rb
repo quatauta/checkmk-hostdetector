@@ -2,16 +2,16 @@
 # vim:set fileencoding=utf-8:
 
 module CheckMK
-  module DeviceDetector
+  module HostDetector
     class Site
       include Comparable
 
-      attr_accessor :name, :ranges, :devices
+      attr_accessor :name, :ranges, :hosts
 
-      def initialize(name, devices: [], ranges: [])
-        self.name    = name
-        self.devices = []
-        self.ranges  = ranges
+      def initialize(name, hosts: [], ranges: [])
+        self.name   = name
+        self.hosts  = []
+        self.ranges = ranges
       end
 
       def <=>(other)

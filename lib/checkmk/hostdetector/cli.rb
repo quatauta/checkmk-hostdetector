@@ -1,31 +1,31 @@
 # -*- coding: utf-8; -*-
 # vim:set fileencoding=utf-8:
 
-require 'checkmk/devicedetector'
+require 'checkmk/hostdetector'
 require 'slop'
 
 module CheckMK
-  module DeviceDetector
+  module HostDetector
     class Cli
       def run(argv = ARGV)
         parse_options_slop(argv)
 
-        CheckMK::DeviceDetector::Config.load
+        CheckMK::HostDetector::Config.load
 
-        detector = CheckMK::DeviceDetector::Detector.new
+        detector = CheckMK::HostDetector::Detector.new
 
         detector.parse_sites(ARGF.read)
-        detector.detect_devices(CheckMK::DeviceDetector::Config.jobs)
-        detector.detect_devices_properties(CheckMK::DeviceDetector::Config.jobs)
+        detector.detect_hosts(CheckMK::HostDetector::Config.jobs)
+        detector.detect_hosts_properties(CheckMK::HostDetector::Config.jobs)
 
         detector.sites.each do |site|
-          puts "#{site.name} #{site.ranges.join(" ")}: #{site.devices.size} devices"
-          site.devices.each do |device|
-            puts "  #{device.name}"
-            puts "    hostname:  #{device.hostname}"
-            puts "    ipaddress: #{device.ipaddress}"
-            puts "    site:      #{device.site.name}"
-            puts "    tags:      " + device.tags.to_h.to_a.map { |a| a[0].to_s == a[1].to_s ? a[0].to_s : "#{a[0]}:#{a[1]}" }.sort.join(' ')
+          puts "#{site.name} #{site.ranges.join(" ")}: #{site.hosts.size} hosts"
+          site.hosts.each do |host|
+            puts "  #{host.name}"
+            puts "    hostname:  #{host.hostname}"
+            puts "    ipaddress: #{host.ipaddress}"
+            puts "    site:      #{host.site.name}"
+            puts "    tags:      " + host.tags.to_h.to_a.map { |a| a[0].to_s == a[1].to_s ? a[0].to_s : "#{a[0]}:#{a[1]}" }.sort.join(' ')
           end
         end
       end
@@ -34,7 +34,7 @@ module CheckMK
         options = Slop.new help: true, multiple_switches: true
 
         options.banner <<-END
-          Scans your network for devices and builds suitable configuration for
+          Scans your network for hosts and builds suitable configuration for
           CheckMK/WATO.
 
           Usage:

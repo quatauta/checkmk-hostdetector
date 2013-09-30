@@ -4,7 +4,7 @@
 require 'ostruct'
 
 module CheckMK
-  module DeviceDetector
+  module HostDetector
     class Config < OpenStruct
       @@singleton = new
 
