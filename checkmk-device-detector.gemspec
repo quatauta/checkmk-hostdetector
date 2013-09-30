@@ -26,5 +26,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "yard"
 
   spec.add_runtime_dependency 'progressbar', ['>= 0.21.0']
+  spec.add_runtime_dependency 'slop', ['>= 3.4.6']
   spec.add_runtime_dependency 'thread', ['>= 0.1.1']
 end
