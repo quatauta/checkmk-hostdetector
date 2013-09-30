@@ -8,7 +8,7 @@ module CheckMK
     module Helper
       module Nmap
         def self.ping(target, options = [])
-          self.scan(target, ['-sP'] + options)
+          scan(target, ['-sP'] + options)
         end
 
         def self.scan(target, options = [])

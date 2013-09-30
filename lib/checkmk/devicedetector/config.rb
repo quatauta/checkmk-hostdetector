@@ -6,10 +6,10 @@ require 'ostruct'
 module CheckMK
   module DeviceDetector
     class Config < OpenStruct
-      @@singleton = self.new
+      @@singleton = new
 
       def self.load
-        @@singleton = self.new
+        @@singleton = new
       end
 
       def self.jobs
@@ -44,8 +44,8 @@ module CheckMK
         super
 
         config = OpenStruct.new
-        dir    = File.dirname($0)
-        name   = File.basename($0, '.rb')
+        dir    = File.dirname($PROGRAM_NAME)
+        name   = File.basename($PROGRAM_NAME, '.rb')
 
         files = [
           [ENV['%ProgramFiles(x86)%'],  name, 'rules.rb'],

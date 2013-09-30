@@ -17,8 +17,8 @@ module CheckMK
       attr_accessor :sites
 
       def detect_devices(jobs = 8)
-        Detector.progressbar_thread_pool(title:    "Sites",
-                                         elements: self.sites,
+        Detector.progressbar_thread_pool(title:    'Sites',
+                                         elements: sites,
                                          jobs:     jobs) do |site|
           Detector.detect_devices(site)
         end
@@ -31,9 +31,8 @@ module CheckMK
 
         Helper::Nmap.ping(site.ranges.join(' '), ['-oG', '-'])
           .lines
-          .select {
-          |l| l =~ /host.*status.*up/i
-        }.each do |line|
+          .select { |l| l =~ /host.*status.*up/i }
+          .each do |line|
           tmp_a, ipaddress, hostname, *tmp_b = line.split
 
           hostname.gsub!(/[()]/, '')
@@ -51,9 +50,9 @@ module CheckMK
       end
 
       def detect_devices_properties(jobs = 8)
-        devices = self.sites.inject([]) { |a, site| a.push(*site.devices) }
+        devices = sites.reduce([]) { |a, site| a.push(*site.devices) }
 
-        Detector.progressbar_thread_pool(title: "Devices", elements: devices, jobs: jobs) do |device|
+        Detector.progressbar_thread_pool(title: 'Devices', elements: devices, jobs: jobs) do |device|
           Detector.detect_device_properties(device)
         end
 
@@ -91,7 +90,7 @@ module CheckMK
       end
 
       def parse_sites(text = '')
-        self.sites = Detector::parse_sites(text)
+        self.sites = Detector.parse_sites(text)
         self
       end
 
@@ -107,17 +106,17 @@ module CheckMK
         sites
       end
 
-      def self.progressbar_thread_pool(title: "", elements: [], jobs: 8, &block)
+      def self.progressbar_thread_pool(title: '', elements: [], jobs: 8, &block)
         pool        = Thread::Pool.new(jobs) if (jobs > 1) && Thread.const_defined?(:Pool)
         tasks       = []
         progressbar = ProgressBar.new("#{elements.size} #{title}", elements.size) if Kernel.const_defined? :ProgressBar
         semaphore   = Mutex.new
 
         elements.each do |e|
-          yield_inc = proc {
+          yield_inc = proc do
             yield(e)
             semaphore.synchronize { progressbar.inc } if progressbar
-          }
+          end
 
           if pool
             tasks << pool.process { yield_inc.call }

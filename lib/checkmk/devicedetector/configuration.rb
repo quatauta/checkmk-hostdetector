@@ -27,7 +27,7 @@ module CheckMK
       def initialize(args = {})
         args  = defaults.merge(args)
         @env  = args[:env]
-        @data = YAML::load_file(File.join(args[:path],
+        @data = YAML.load_file(File.join(args[:path],
                                           args[:filename]))
 
         define_methods_for_environment

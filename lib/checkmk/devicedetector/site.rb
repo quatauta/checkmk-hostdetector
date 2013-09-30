@@ -15,11 +15,11 @@ module CheckMK
       end
 
       def <=>(other)
-        self.name <=> other.name
+        name <=> other.name
       end
 
       def to_s
-        self.name
+        name
       end
     end
   end

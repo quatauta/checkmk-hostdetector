@@ -16,23 +16,23 @@ module CheckMK
         self.site      = site
         self.tags      = OpenStruct.new
 
-        if self.hostname.to_s.empty?
-          self.name = Device.name_from_ipaddress(self.site, self.ipaddress)
+        if hostname.to_s.empty?
+          self.name = Device.name_from_ipaddress(site, ipaddress)
         else
-          self.name = self.hostname.sub(/\..*/i, '').upcase
+          self.name = hostname.sub(/\..*/i, '').upcase
         end
       end
 
       def <=>(other)
-        self.to_s <=> other.to_s
+        to_s <=> other.to_s
       end
 
       def to_s
-        self.name.to_s
+        name.to_s
       end
 
       def self.name_from_ipaddress(site, ipaddress)
-        name = ""
+        name = ''
         ip_c = ipaddress.to_s.split('.')[2].to_i
         ip_d = ipaddress.to_s.split('.')[3].to_i
 
