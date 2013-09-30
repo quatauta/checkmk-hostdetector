@@ -7,6 +7,6 @@ module CheckMK
     autoload :Detector, 'checkmk/devicedetector/detector'
     autoload :Device,   'checkmk/devicedetector/device'
     autoload :Helper,   'checkmk/devicedetector/helper'
-    autoload :Location, 'checkmk/devicedetector/location'
+    autoload :Site,     'checkmk/devicedetector/site'
   end
 end

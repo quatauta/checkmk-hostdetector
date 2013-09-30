@@ -3,7 +3,7 @@
 
 module CheckMK
   module DeviceDetector
-    class Location
+    class Site
       include Comparable
 
       attr_accessor :name, :ranges, :devices

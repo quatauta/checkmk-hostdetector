@@ -7,4 +7,4 @@ set PATH=%PATH%;c:\tools\prg\net-snmp\bin
 set PATH=%PATH%;c:\tools\prg\ruby\2.0.0-x64\bin
 set RUBYOPT=
 
-ruby detect.rb locations.txt
+ruby "%~dp0\detect" $*

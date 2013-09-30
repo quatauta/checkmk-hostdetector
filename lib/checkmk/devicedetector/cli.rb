@@ -14,17 +14,17 @@ module CheckMK
 
         detector = CheckMK::DeviceDetector::Detector.new
 
-        detector.parse_locations(ARGF.read)
+        detector.parse_sites(ARGF.read)
         detector.detect_devices(CheckMK::DeviceDetector::Config.jobs)
         detector.detect_devices_properties(CheckMK::DeviceDetector::Config.jobs)
 
-        detector.locations.each do |location|
-          puts "#{location.name} #{location.ranges.join(" ")}: #{location.devices.size} devices"
-          location.devices.each do |device|
+        detector.sites.each do |site|
+          puts "#{site.name} #{site.ranges.join(" ")}: #{site.devices.size} devices"
+          site.devices.each do |device|
             puts "  #{device.name}"
             puts "    hostname:  #{device.hostname}"
             puts "    ipaddress: #{device.ipaddress}"
-            puts "    location:  #{device.location.name}"
+            puts "    site:      #{device.site.name}"
             puts "    tags:      " + device.tags.to_h.to_a.map { |a| a[0].to_s == a[1].to_s ? a[0].to_s : "#{a[0]}:#{a[1]}" }.sort.join(' ')
           end
         end
@@ -38,16 +38,16 @@ module CheckMK
           CheckMK/WATO.
 
           Usage:
-            #{$PROGRAM_NAME} [OPTIONS] [-l] RANGE-FILES
+            #{$PROGRAM_NAME} [OPTIONS] [-l] SITE-FILES
 
-          STDIN is read if location file is '-' or omitted:
-            #{$PROGRAM_NAME} [OPTIONS] < RANGE-FILE
-            cat RANGE-FILES | #{$PROGRAM_NAME} [OPTIONS] [-r -]
+          STDIN is read if site file is '-' or omitted:
+            #{$PROGRAM_NAME} [OPTIONS] < SITES-FILE
+            cat SITES-FILES | #{$PROGRAM_NAME} [OPTIONS] [-r -]
             echo 'Local 192.168.0.0/24' | #{$PROGRAM_NAME} [OPTIONS] [-r -]
 
-          Range files contain a name and the IP adress ranges to be scanned. Each line
-          begins with the name followed by one or multiple IP address ranges. Name and
-          range(s) are divided by whitespace. The ranges must conform to the nmap [1]
+          Site files contain a name and the IP adress ranges to be scanned. Each line
+          begins with the site's name followed by one or multiple IP address ranges. Name
+          and range(s) are divided by whitespace. The ranges must conform to the nmap [1]
           target specifications.
 
             Site-A 10.0.1.0/24 10.0.100.0/24 192.168.0,1,2.1-254
@@ -65,11 +65,10 @@ module CheckMK
                    as: Array, default: ['config.rb'])
         options.on('j=', 'jobs=', 'The maximum number of jobs run in parallel',
                    as: Integer, default: 4)
-        options.on('r=', 'ranges=', 'The file(s) containing ranges to be scanned',
-                   as: Array, default: ['ranges.txt'])
+        options.on('s=', 'sites=', 'The file(s) containing sites to be scanned',
+                   as: Array, default: ['sites.txt'])
 
         options.parse(argv)
-        require 'pp' ; pp options.to_hash
         options
       end
     end

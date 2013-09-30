@@ -11,33 +11,33 @@ config.snmp_oids = %w[
 ]
 
 config.names = [
-  { ip: '10.9.*.1',    name: '%<location>sR01' },
-  { ip: '10.190.*.1',  name: '%<location>sR11' },
-  { ip: '10.190.*.16', name: '%<location>sR21' },
+  { ip: '10.9.*.1',    name: '%<site>sR01' },
+  { ip: '10.190.*.1',  name: '%<site>sR11' },
+  { ip: '10.190.*.16', name: '%<site>sR21' },
 
-  { ip: '10.9.*.3[1-9]', ip_d: -30, location: '!tr11', name: '%<location>sS%<ip_d>02d' },
+  { ip: '10.9.*.3[1-9]', ip_d: -30, site: '!tr11', name: '%<site>sS%<ip_d>02d' },
 
-  { ip: '10.9.(112|113|114|115).3[1-9]', ip_d: -30, name: '%<location>sS%<ip_c>03d%<ip_d>02d' },
+  { ip: '10.9.(112|113|114|115).3[1-9]', ip_d: -30, name: '%<site>sS%<ip_c>03d%<ip_d>02d' },
 
-  { ip: '10.9.145.6',  location: 'tr11', name: '%<location>sS0K1' },
-  { ip: '10.9.145.10', location: 'tr11', name: '%<location>sS101' },
-  { ip: '10.9.145.11', location: 'tr11', name: '%<location>sS102' },
-  { ip: '10.9.145.12', location: 'tr11', name: '%<location>sS111' },
-  { ip: '10.9.145.13', location: 'tr11', name: '%<location>sS112' },
-  { ip: '10.9.145.14', location: 'tr11', name: '%<location>sS121' },
-  { ip: '10.9.145.15', location: 'tr11', name: '%<location>sS122' },
-  { ip: '10.9.145.16', location: 'tr11', name: '%<location>sS131' },
-  { ip: '10.9.145.17', location: 'tr11', name: '%<location>sS132' },
-  { ip: '10.9.145.18', location: 'tr11', name: '%<location>sS141' },
-  { ip: '10.9.145.19', location: 'tr11', name: '%<location>sS142' },
-  { ip: '10.9.145.20', location: 'tr11', name: '%<location>sS151' },
-  { ip: '10.9.145.21', location: 'tr11', name: '%<location>sS152' },
-  { ip: '10.9.145.22', location: 'tr11', name: '%<location>sS161' },
-  { ip: '10.9.145.23', location: 'tr11', name: '%<location>sS162' },
-  { ip: '10.9.145.24', location: 'tr11', name: '%<location>sS311' },
-  { ip: '10.9.145.25', location: 'tr11', name: '%<location>sS312' },
+  { ip: '10.9.145.6',  site: 'tr11', name: '%<site>sS0K1' },
+  { ip: '10.9.145.10', site: 'tr11', name: '%<site>sS101' },
+  { ip: '10.9.145.11', site: 'tr11', name: '%<site>sS102' },
+  { ip: '10.9.145.12', site: 'tr11', name: '%<site>sS111' },
+  { ip: '10.9.145.13', site: 'tr11', name: '%<site>sS112' },
+  { ip: '10.9.145.14', site: 'tr11', name: '%<site>sS121' },
+  { ip: '10.9.145.15', site: 'tr11', name: '%<site>sS122' },
+  { ip: '10.9.145.16', site: 'tr11', name: '%<site>sS131' },
+  { ip: '10.9.145.17', site: 'tr11', name: '%<site>sS132' },
+  { ip: '10.9.145.18', site: 'tr11', name: '%<site>sS141' },
+  { ip: '10.9.145.19', site: 'tr11', name: '%<site>sS142' },
+  { ip: '10.9.145.20', site: 'tr11', name: '%<site>sS151' },
+  { ip: '10.9.145.21', site: 'tr11', name: '%<site>sS152' },
+  { ip: '10.9.145.22', site: 'tr11', name: '%<site>sS161' },
+  { ip: '10.9.145.23', site: 'tr11', name: '%<site>sS162' },
+  { ip: '10.9.145.24', site: 'tr11', name: '%<site>sS311' },
+  { ip: '10.9.145.25', site: 'tr11', name: '%<site>sS312' },
 
-  { ip: '10.9.*.(23[0-9]|240)', ip_d: -229, name: '%<location>sTK%<ip_d>02d' },
+  { ip: '10.9.*.(23[0-9]|240)', ip_d: -229, name: '%<site>sTK%<ip_d>02d' },
 ]
 
 config.models = [

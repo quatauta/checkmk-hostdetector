@@ -14,22 +14,22 @@ end
 module CheckMK
   module DeviceDetector
     class Detector
-      attr_accessor :locations
+      attr_accessor :sites
 
       def detect_devices(jobs = 8)
-        Detector.progressbar_thread_pool(title:    "Locations",
-                                         elements: self.locations,
-                                         jobs:     jobs) do |location|
-          Detector.detect_devices(location)
+        Detector.progressbar_thread_pool(title:    "Sites",
+                                         elements: self.sites,
+                                         jobs:     jobs) do |site|
+          Detector.detect_devices(site)
         end
 
         self
       end
 
-      def self.detect_devices(location)
+      def self.detect_devices(site)
         devices = []
 
-        Helper::Nmap.ping(location.ranges.join(' '), ['-oG', '-'])
+        Helper::Nmap.ping(site.ranges.join(' '), ['-oG', '-'])
           .lines
           .select {
           |l| l =~ /host.*status.*up/i
@@ -42,16 +42,16 @@ module CheckMK
           ipaddress = IPAddr.new(ipaddress)
           device    = Device.new(hostname:  hostname,
                                  ipaddress: ipaddress,
-                                 location:  location)
+                                 site:      site)
 
           devices.push(device)
         end
 
-        location.devices = devices
+        site.devices = devices
       end
 
       def detect_devices_properties(jobs = 8)
-        devices = self.locations.inject([]) { |a, location| a.push(*location.devices) }
+        devices = self.sites.inject([]) { |a, site| a.push(*site.devices) }
 
         Detector.progressbar_thread_pool(title: "Devices", elements: devices, jobs: jobs) do |device|
           Detector.detect_device_properties(device)
@@ -90,21 +90,21 @@ module CheckMK
         device
       end
 
-      def parse_locations(text = '')
-        self.locations = Detector::parse_locations(text)
+      def parse_sites(text = '')
+        self.sites = Detector::parse_sites(text)
         self
       end
 
-      def self.parse_locations(text = '')
-        locations = []
+      def self.parse_sites(text = '')
+        sites = []
 
         text.each_line do |line|
           name, *ranges = line.split
 
-          locations.push(Location.new(name, ranges: ranges))
+          sites.push(Site.new(name, ranges: ranges))
         end
 
-        locations
+        sites
       end
 
       def self.progressbar_thread_pool(title: "", elements: [], jobs: 8, &block)
