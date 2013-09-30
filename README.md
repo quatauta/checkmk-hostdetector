@@ -4,16 +4,6 @@ TODO: Write a gem description
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-    gem 'checkmk-device-detector'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
     $ gem install checkmk-device-detector
 
 ## Usage
