@@ -28,7 +28,7 @@ module CheckMK
         args  = defaults.merge(args)
         @env  = args[:env]
         @data = YAML.load_file(File.join(args[:path],
-                                          args[:filename]))
+                                         args[:filename]))
 
         define_methods_for_environment
       end
@@ -44,7 +44,7 @@ module CheckMK
       # object initialization
       def define_methods_for_environment
         data[env].each do |name, value|
-          instance_eval 'def %s \n "%s" \n end' % [ name, value ]
+          instance_eval 'def %s ; \'%s\' ; end' % [ name, value ]
         end
       end
     end
