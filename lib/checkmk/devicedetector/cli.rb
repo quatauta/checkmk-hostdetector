@@ -50,6 +50,10 @@ module CheckMK
           range(s) are divided by whitespace. The ranges must conform to the nmap [1]
           target specifications.
 
+            Site-A 10.0.1.0/24 10.0.100.0/24 192.168.0,1,2.1-254
+            Site-B 10.0.2.0/24 10.0.200.0/24
+            Site-C 10.0.3.0/24 10.0.300.0/24
+
           [1] http://nmap.org/book/man-target-specification.html
 
           The options listed below may be specified indifferent ways like shown in this
