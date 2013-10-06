@@ -1,5 +1,3 @@
-module CheckMK
-  module HostDetector
-    VERSION = '0.0.1'
-  end
+module CheckMK::HostDetector
+  VERSION = '0.0.1'
 end
