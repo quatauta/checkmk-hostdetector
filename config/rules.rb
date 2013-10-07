@@ -3,6 +3,12 @@
 
 config.jobs = 8
 
+config.exclude_hosts = [
+  /[a-z]{2}w[0-9]{4}/i,
+  /[a-z]{2}n[0-9]{4}/i,
+  /[a-z]{2}p[0-9]+/i,
+]
+
 config.snmp_oids = %w[
   sysDescr
   sysObjectID

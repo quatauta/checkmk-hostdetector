@@ -16,6 +16,10 @@ module CheckMK
         @@singleton.jobs
       end
 
+      def self.exclude_hosts
+        @@singleton.exclude_hosts
+      end
+
       def self.models
         @@singleton.models
       end
