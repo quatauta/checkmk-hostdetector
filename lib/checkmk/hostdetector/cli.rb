@@ -13,6 +13,7 @@ module CheckMK
         CheckMK::HostDetector::Config.load
 
         detector = CheckMK::HostDetector::Detector.new
+        wato     = CheckMK::HostDetector::WatoOutput.new
 
         detector.parse_sites(ARGF.read)
         detector.detect_hosts(CheckMK::HostDetector::Config.jobs)
@@ -27,6 +28,11 @@ module CheckMK
             puts "    site:      #{host.site.name}"
             puts "    tags:      " + host.tags.to_h.to_a.map { |a| a[0].to_s == a[1].to_s ? a[0].to_s : "#{a[0]}:#{a[1]}" }.sort.join(' ')
           end
+          puts
+          puts "WATO hosts.mk for site #{site.name}"
+          puts "-----------------------------------"
+          puts wato.hosts_mk(site.hosts)
+          puts
         end
       end
 

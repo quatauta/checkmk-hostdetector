@@ -11,5 +11,6 @@ module CheckMK
     autoload :Host,          'checkmk/hostdetector/host'
     autoload :Site,          'checkmk/hostdetector/site'
     autoload :VERSION,       'checkmk/hostdetector/version'
+    autoload :WatoOutput,    'checkmk/hostdetector/watooutput'
   end
 end
