@@ -1,4 +1,5 @@
 *.gem
+*.no-git.*
 *.rbc
 .bundle/
 .config/
@@ -9,8 +10,8 @@ _yardoc/
 coverage/
 doc/coverage/
 doc/rdoc/
-doc/yard/
 doc/spec/
+doc/yard/
 html/
 pkg/
 rdoc/
@@ -18,5 +19,3 @@ spec/reports/
 test/tmp/
 test/version_tmp/
 tmp/
-
-sites.txt
