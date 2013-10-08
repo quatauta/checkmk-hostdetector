@@ -4,8 +4,7 @@
 module CheckMK
   module HostDetector
     autoload :Cli,           'checkmk/hostdetector/cli'
-    autoload :Config,        'checkmk/hostdetector/config'
-    autoload :Configuration, 'checkmk/hostdetector/configuration'
+    autoload :ConfigDSL,     'checkmk/hostdetector/config_dsl'
     autoload :Detector,      'checkmk/hostdetector/detector'
     autoload :Helper,        'checkmk/hostdetector/helper'
     autoload :Host,          'checkmk/hostdetector/host'

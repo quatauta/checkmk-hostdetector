@@ -51,9 +51,11 @@ module CheckMK
               site: site,
               ip:   ipaddress.to_s,
               ip_c: ip_c + (rule[:ip_c] || 0),
-              ip_d: ip_d + (rule[:ip_d] || 0), }
-            break # Use only the first match from Config.names
+              ip_d: ip_d + (rule[:ip_d] || 0),
+            }
           end
+
+          # Continue loop to let the last match from Config.names count
         end
 
         if name.to_s.empty?

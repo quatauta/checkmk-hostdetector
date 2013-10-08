@@ -1,39 +1,87 @@
 # -*- coding: utf-8; -*-
 # vim:set fileencoding=utf-8:
 
-require 'checkmk/hostdetector'
+require 'checkmk/hostdetector/config_dsl'
 require 'slop'
 
 module CheckMK
   module HostDetector
     class Cli
-      def run(argv = ARGV)
-        parse_options_slop(argv)
+      def config_default_filenames
+        name = 'checkmk_hostdetector'
 
-        CheckMK::HostDetector::Config.load
+        package = [
+          [File.dirname(__FILE__), '..', '..', '..', 'config', 'config.rb'],
+          ['', 'usr',          'share', name, 'config.rb'],
+          ['', 'usr', 'local', 'share', name, 'config.rb'],
+          [ENV['ProgramFiles(x86)'],  name, 'config.rb'],
+          [ENV['ProgramFiles'],       name, 'config.rb'],
+        ]
 
-        detector = CheckMK::HostDetector::Detector.new
-        wato     = CheckMK::HostDetector::WatoOutput.new
+        site = [
+          [ENV['ProgramData'], name, 'config.rb'],
+          ['', 'etc', name, 'config.rb'],
+          ['', 'etc', name + '.conf'],
+          ['', 'etc', name.split('_'), 'config.rb'],
+          ['', 'etc', name.split('_')[0..-2], name.split('_').last + '.conf'],
+        ]
 
-        detector.parse_sites(ARGF.read)
-        detector.detect_hosts(CheckMK::HostDetector::Config.jobs)
-        detector.detect_hosts_properties(CheckMK::HostDetector::Config.jobs)
+        user = [
+          [ENV['AppData'], name, 'config.rb'],
+          ['~', '.config', name, 'config.rb'],
+          ['~', '.config', name.split('_'), 'config.rb'],
+          ['~', '.config', name.split('_')[0..-2], name.split('_').last + '.conf'],
+          ['~', '.config', name + '.conf'],
+          ['~', '.' + name, 'config.rb'],
+          ['~', '.' + name + '.conf'],
+        ]
 
-        detector.sites.each do |site|
-          puts "#{site.name} #{site.ranges.join(" ")}: #{site.hosts.size} hosts"
-          site.hosts.each do |host|
-            puts "  #{host.name}"
-            puts "    hostname:  #{host.hostname}"
-            puts "    ipaddress: #{host.ipaddress}"
-            puts "    site:      #{host.site.name}"
-            puts "    tags:      " + host.tags.to_h.to_a.map { |a| a[0].to_s == a[1].to_s ? a[0].to_s : "#{a[0]}:#{a[1]}" }.sort.join(' ')
-          end
-          puts
-          puts "WATO hosts.mk for site #{site.name}"
-          puts "-----------------------------------"
-          puts wato.hosts_mk(site.hosts)
-          puts
+        filenames = package + site + user
+        filenames.select! { |a| a.all? { |e| e } }
+        filenames.map! { |a| File.join(a) }
+
+        filenames
+      end
+
+      def config_load(filenames)
+        config = ConfigDSL.new
+
+        filenames.map { |filename|
+          File.realpath(filename)
+        }.uniq.each do |filename|
+          puts "Loading configuration from #{filename}"
+          config.load(filename)
         end
+
+        config
+      end
+
+      def run(argv = ARGV)
+        options = parse_options_slop(argv)
+        config  = config_load(Dir.glob(config_default_filenames) +
+                              options[:config])
+
+        # detector = Detector.new(config)
+        # wato     = WatoOutput.new(config)
+        #
+        # detector.parse_sites(options[:sites])
+        # detector.detect_hosts
+        # detector.detect_hosts_properties
+        #
+        # detector.sites.each do |site|
+        #   puts "#{site.name} #{site.ranges.join(" ")}: #{site.hosts.size} hosts"
+        #   site.hosts.each do |host|
+        #     puts "  #{host.name}"
+        #     puts "    hostname:  #{host.hostname}"
+        #     puts "    ipaddress: #{host.ipaddress}"
+        #     puts "    site:      #{host.site.name}"
+        #     puts "    tags:      " + host.tags.to_h.to_a.map { |a| a[0].to_s == a[1].to_s ? a[0].to_s : "#{a[0]}:#{a[1]}" }.sort.join(' ')
+        #   end
+        #   puts
+        #   puts "WATO hosts.mk for site #{site.name}"
+        #   puts "-----------------------------------"
+        #   puts wato.hosts_mk(site.hosts)
+        #   puts
       end
 
       def parse_options_slop(argv = ARGV)
@@ -68,16 +116,17 @@ module CheckMK
           examples:  -ca.rb  -c a.rb  -c=a.rb  --c a.rb  --c=a.rb
                      -config a.rb  -config=a.rb  --config a.rb  --config=a.rb
 
-          You can specify more than one configuration file. Each file is read in the given
-          order and settings are overridden/merged in order of read files.
+          You can specify more than one configuration file. The files are read in the
+          given order and settings from all files are merged. The following files are
+          always tried to read:
           END
           .gsub(/^          /, '')
-        options.on('c=', 'config=', 'The configuration file(s) to use.',
-                   as: Array, default: ['config.rb'])
-        options.on('j=', 'jobs=', 'The maximum number of jobs to run in parallel',
-                   as: Integer, default: 4)
-        options.on('s=', 'sites=', 'The file containing sites/ranges to be scanned',
-                   as: Array, default: ['sites.txt'])
+        options.banner << "\n  " << config_default_filenames.join("\n  ")
+        options.banner << "\n\nOptions:"
+
+        options.on('c=', 'config', 'The configuration file(s) to use.', as: Array, default: [])
+        options.on('j=', 'jobs', 'The maximum number of jobs to run in parallel', as: Integer, default: 4)
+        options.on('s=', 'sites', 'The file containing sites/ranges to be scanned', as: Array, default: [])
 
         options.parse(argv)
         options
