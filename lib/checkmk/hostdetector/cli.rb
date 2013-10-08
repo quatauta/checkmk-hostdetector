@@ -64,7 +64,7 @@ module CheckMK
 
           [1] http://nmap.org/book/man-target-specification.html
 
-          The options listed below may be specified indifferent ways like shown in this
+          The options listed below may be specified in different ways like shown in this
           examples:  -ca.rb  -c a.rb  -c=a.rb  --c a.rb  --c=a.rb
                      -config a.rb  -config=a.rb  --config a.rb  --config=a.rb
 
@@ -74,9 +74,9 @@ module CheckMK
           .gsub(/^          /, '')
         options.on('c=', 'config=', 'The configuration file(s) to use.',
                    as: Array, default: ['config.rb'])
-        options.on('j=', 'jobs=', 'The maximum number of jobs run in parallel',
+        options.on('j=', 'jobs=', 'The maximum number of jobs to run in parallel',
                    as: Integer, default: 4)
-        options.on('s=', 'sites=', 'The file containing sites to be scanned',
+        options.on('s=', 'sites=', 'The file containing sites/ranges to be scanned',
                    as: Array, default: ['sites.txt'])
 
         options.parse(argv)
