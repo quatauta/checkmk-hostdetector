@@ -12,18 +12,18 @@ module CheckMK
 
         package = [
           [File.dirname(__FILE__), '..', '..', '..', 'config', 'config.rb'],
-          ['', 'usr',          'share', name, 'config.rb'],
-          ['', 'usr', 'local', 'share', name, 'config.rb'],
-          [ENV['ProgramFiles(x86)'],  name, 'config.rb'],
-          [ENV['ProgramFiles'],       name, 'config.rb'],
+          [ENV['ProgramFiles(x86)'], name, 'config.rb'],
+          [ENV['ProgramFiles'],      name, 'config.rb'],
+          [File::SEPARATOR, 'usr',          'share', name, 'config.rb'],
+          [File::SEPARATOR, 'usr', 'local', 'share', name, 'config.rb'],
         ]
 
         site = [
           [ENV['ProgramData'], name, 'config.rb'],
-          ['', 'etc', name, 'config.rb'],
-          ['', 'etc', name + '.conf'],
-          ['', 'etc', name.split('_'), 'config.rb'],
-          ['', 'etc', name.split('_')[0..-2], name.split('_').last + '.conf'],
+          [File::SEPARATOR, 'etc', name, 'config.rb'],
+          [File::SEPARATOR, 'etc', name + '.conf'],
+          [File::SEPARATOR, 'etc', name.split('_'), 'config.rb'],
+          [File::SEPARATOR, 'etc', name.split('_')[0..-2], name.split('_').last + '.conf'],
         ]
 
         user = [
