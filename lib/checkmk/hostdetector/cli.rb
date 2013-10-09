@@ -11,38 +11,37 @@ module CheckMK
         name = self.class.name.downcase.split('::')[0..1].join('_')
         sep  = File::ALT_SEPARATOR || File::SEPARATOR
 
+        variants = [
+          [name, 'config.rb'],
+          [name + '.conf'],
+          [name.split('_'), 'config.rb'],
+          [name.split('_')[0..-2], name.split('_').last + '.conf'],
+        ]
+
         package = [
-          [File.dirname(__FILE__), '..', '..', '..', 'config', 'config.rb'],
-          [ENV['ProgramFiles(x86)'], name, 'config.rb'],
-          [ENV['ProgramFiles'],      name, 'config.rb'],
-          [ENV['SystemDrive'] || sep, 'usr',          'share', name, 'config.rb'],
-          [ENV['SystemDrive'] || sep, 'usr', 'local', 'share', name, 'config.rb'],
+          ENV['ProgramFiles'],
+          ENV['ProgramFiles(x86)'],
+          [ENV['SystemDrive'] || sep, 'usr', 'share'],
+          [ENV['SystemDrive'] || sep, 'usr', 'local', 'share'],
         ]
 
         site = [
-          [ENV['ProgramData'], name, 'config.rb'],
-          [ENV['SystemDrive'] || sep, 'etc', name, 'config.rb'],
-          [ENV['SystemDrive'] || sep, 'etc', name + '.conf'],
-          [ENV['SystemDrive'] || sep, 'etc', name.split('_'), 'config.rb'],
-          [ENV['SystemDrive'] || sep, 'etc', name.split('_')[0..-2], name.split('_').last + '.conf'],
+          ENV['ProgramData'],
+          [ENV['SystemDrive'] || sep, 'etc'],
         ]
 
         user = [
-          [ENV['AppData'], name, 'config.rb'],
-          [ENV['AppData'], name + '.conf'],
-          [ENV['LocalAppData'], name, 'config.rb'],
-          [ENV['LocalAppData'], name + '.conf'],
-          [ENV['HOME'], '.config', name, 'config.rb'],
-          [ENV['HOME'], '.config', name.split('_'), 'config.rb'],
-          [ENV['HOME'], '.config', name.split('_')[0..-2], name.split('_').last + '.conf'],
-          [ENV['HOME'], '.config', name + '.conf'],
-          [ENV['HOME'], '.' + name, 'config.rb'],
-          [ENV['HOME'], '.' + name + '.conf'],
+          ENV['AppData'],
+          ENV['LocalAppData'],
+          [ENV['HOME'], '.config'],
         ]
 
-        filenames = package + site + user
+        filenames = [[File.dirname(__FILE__), '..', '..', '..', 'config', 'config.rb']]
+        filenames = filenames + ((package + site + user).product(variants))
+        filenames.map! { |a| a.flatten }
         filenames.select! { |a| a.all? { |e| e } }
-        filenames.map! { |a| File.join(a).gsub(File::SEPARATOR, sep) }
+        filenames.map! { |a| File.join(a) }
+        filenames.map! { |n| n.gsub(File::SEPARATOR, sep) } if File::SEPARATOR != sep
 
         filenames
       end
@@ -121,11 +120,9 @@ module CheckMK
                      -config a.rb  -config=a.rb  --config a.rb  --config=a.rb
 
           You can specify more than one configuration file. The files are read in the
-          given order and settings from all files are merged. The following files are
-          always tried to read if they exist:
+          given order and settings from all files are merged.
           END
           .gsub(/^          /, '')
-        options.banner << "\n  " << config_default_filenames.join("\n  ") << "\n"
         options.banner << "\n"
         options.banner << "Options:"
 
