@@ -54,12 +54,12 @@ service value: 'smtps',            regex: /465.*(smtps|ssl.*smtp)/i
 service value: 'ssh',              regex: /22.*ssh/i
 
 # Device classes/types
-type value: 'printer',    regex: /brother.*nc/i # u.a. Brother MFC-6490CW
-type value: 'printer',    regex: /canon.*mx/i
-type value: 'printer',    regex: /dlink.*print/i
-type value: 'printer',    regex: /hp.*ethernet/i # u.a. HP OfficeJet Pro 8600 N911a
-type value: 'printer',    regex: /jetdirect/i
-type value: 'printer',    regex: /konica.*minolta/i
-type value: 'printer',    regex: /kyocera/i
-type value: 'printer',    regex: /lexmark/i
-type value: 'switch',     regex: /switch|superstack/i
+type value: 'printer', regex: /brother.*nc/i # u.a. Brother MFC-6490CW
+type value: 'printer', regex: /canon.*mx/i
+type value: 'printer', regex: /dlink.*print/i
+type value: 'printer', regex: /hp.*ethernet/i # u.a. HP OfficeJet Pro 8600 N911a
+type value: 'printer', regex: /jetdirect/i
+type value: 'printer', regex: /konica.*minolta/i
+type value: 'printer', regex: /kyocera/i
+type value: 'printer', regex: /lexmark/i
+type value: 'switch',  regex: /switch|superstack/i
