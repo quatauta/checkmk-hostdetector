@@ -118,11 +118,12 @@ module CheckMK
 
           You can specify more than one configuration file. The files are read in the
           given order and settings from all files are merged. The following files are
-          always tried to read:
+          always tried to read if they exist:
           END
           .gsub(/^          /, '')
-        options.banner << "\n  " << config_default_filenames.join("\n  ")
-        options.banner << "\n\nOptions:"
+        options.banner << "\n  " << config_default_filenames.join("\n  ") << "\n"
+        options.banner << "\n"
+        options.banner << "Options:"
 
         options.on('c=', 'config', 'The configuration file(s) to use.', as: Array, default: [])
         options.on('j=', 'jobs', 'The maximum number of jobs to run in parallel', as: Integer, default: 4)
