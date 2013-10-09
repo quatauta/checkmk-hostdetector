@@ -9,36 +9,40 @@ module CheckMK
     class Cli
       def config_default_filenames
         name = self.class.name.downcase.split('::')[0..1].join('_')
+        sep  = File::ALT_SEPARATOR || File::SEPARATOR
 
         package = [
           [File.dirname(__FILE__), '..', '..', '..', 'config', 'config.rb'],
           [ENV['ProgramFiles(x86)'], name, 'config.rb'],
           [ENV['ProgramFiles'],      name, 'config.rb'],
-          [File::SEPARATOR, 'usr',          'share', name, 'config.rb'],
-          [File::SEPARATOR, 'usr', 'local', 'share', name, 'config.rb'],
+          [ENV['SystemDrive'] || sep, 'usr',          'share', name, 'config.rb'],
+          [ENV['SystemDrive'] || sep, 'usr', 'local', 'share', name, 'config.rb'],
         ]
 
         site = [
           [ENV['ProgramData'], name, 'config.rb'],
-          [File::SEPARATOR, 'etc', name, 'config.rb'],
-          [File::SEPARATOR, 'etc', name + '.conf'],
-          [File::SEPARATOR, 'etc', name.split('_'), 'config.rb'],
-          [File::SEPARATOR, 'etc', name.split('_')[0..-2], name.split('_').last + '.conf'],
+          [ENV['SystemDrive'] || sep, 'etc', name, 'config.rb'],
+          [ENV['SystemDrive'] || sep, 'etc', name + '.conf'],
+          [ENV['SystemDrive'] || sep, 'etc', name.split('_'), 'config.rb'],
+          [ENV['SystemDrive'] || sep, 'etc', name.split('_')[0..-2], name.split('_').last + '.conf'],
         ]
 
         user = [
           [ENV['AppData'], name, 'config.rb'],
-          ['~', '.config', name, 'config.rb'],
-          ['~', '.config', name.split('_'), 'config.rb'],
-          ['~', '.config', name.split('_')[0..-2], name.split('_').last + '.conf'],
-          ['~', '.config', name + '.conf'],
-          ['~', '.' + name, 'config.rb'],
-          ['~', '.' + name + '.conf'],
+          [ENV['AppData'], name + '.conf'],
+          [ENV['LocalAppData'], name, 'config.rb'],
+          [ENV['LocalAppData'], name + '.conf'],
+          [ENV['HOME'], '.config', name, 'config.rb'],
+          [ENV['HOME'], '.config', name.split('_'), 'config.rb'],
+          [ENV['HOME'], '.config', name.split('_')[0..-2], name.split('_').last + '.conf'],
+          [ENV['HOME'], '.config', name + '.conf'],
+          [ENV['HOME'], '.' + name, 'config.rb'],
+          [ENV['HOME'], '.' + name + '.conf'],
         ]
 
         filenames = package + site + user
         filenames.select! { |a| a.all? { |e| e } }
-        filenames.map! { |a| File.join(a) }
+        filenames.map! { |a| File.join(a).gsub(File::SEPARATOR, sep) }
 
         filenames
       end
