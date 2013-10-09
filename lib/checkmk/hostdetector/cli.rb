@@ -8,7 +8,7 @@ module CheckMK
   module HostDetector
     class Cli
       def config_default_filenames
-        name = 'checkmk_hostdetector'
+        name = self.class.name.downcase.split('::')[0..1].join('_')
 
         package = [
           [File.dirname(__FILE__), '..', '..', '..', 'config', 'config.rb'],
