@@ -4,7 +4,8 @@
 # run four nmap/snmpstatus jobs in parallel
 jobs 4
 
-# snmpstatus oids
+# SNMP community and OIDs
+snmp_community 'public'
 snmp_oid 'sysDescr'
 snmp_oid 'sysObjectID'
 snmp_oid 'MIB-Dell-CM::dell.10892.1.300.10.1.9'
