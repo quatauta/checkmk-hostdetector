@@ -53,7 +53,7 @@ module CheckMK
           File.realpath(filename)
         }.uniq.each do |filename|
           puts "Loading configuration from #{filename}"
-          config.load(filename)
+          config.load_file(filename)
         end
 
         config

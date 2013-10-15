@@ -35,19 +35,16 @@ module CheckMK
         send(sym, *args)
       end
 
-      def load(*filenames)
+      def load(text, filename = '(inline string)')
+        instance_eval(text, filename)
+      end
+
+      def load_file(*filenames)
         filenames.flatten.each do |filename|
-          instance_eval(File.read(filename), filename)
+          load(File.read(filename), filename)
         end
 
         self
-      end
-
-      def self.load(*filenames)
-        dsl = new
-
-        dsl.load(filenames)
-        dsl
       end
     end
   end
