@@ -1,6 +1,8 @@
 # -*- coding: utf-8; -*-
 # vim:set fileencoding=utf-8:
 
+task :default => 'test:default'
+
 namespace :gem do
   begin
     require 'bundler/gem_tasks'
@@ -46,6 +48,15 @@ namespace :metrics do
       task.patterns = ['Rakefile', 'bin/**/*.rb', 'config/**.rb', 'lib/**/*.rb']
       task.fail_on_error = false
     end
+  rescue LoadError
+  end
+end
+
+namespace :test do
+  begin
+    require 'rspec/core/rake_task.rb'
+    RSpec::Core::RakeTask.new
+    task :default => :spec
   rescue LoadError
   end
 end
