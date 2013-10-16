@@ -24,3 +24,16 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 end
+
+def require_all_lib_files
+  libdir = File.join(File.dirname(__FILE__), '..', 'lib')
+  libs   = Dir.glob(File.join(libdir, '**', '*.rb')).map { |fn|
+    File.realpath(fn)
+  }
+
+  libs.each do |lib|
+    require lib
+  end
+end
+
+require_all_lib_files
