@@ -26,10 +26,8 @@ RSpec.configure do |config|
 end
 
 def require_all_lib_files
-  libdir = File.join(File.dirname(__FILE__), '..', 'lib')
-  libs   = Dir.glob(File.join(libdir, '**', '*.rb')).map { |fn|
-    File.realpath(fn)
-  }
+  libdir = File.realpath(File.join(File.dirname(__FILE__), '..', 'lib'))
+  libs   = Dir.glob(File.join(libdir, '**', '*.rb'))
 
   libs.each do |lib|
     require lib
