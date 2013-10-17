@@ -18,26 +18,23 @@ module CheckMK
           [name.split('_')[0..-2], name.split('_').last + '.conf'],
         ]
 
-        package = [
-          ENV['ProgramFiles'],
-          ENV['ProgramFiles(x86)'],
+        dirs = [
+          # possible distribution install dirs
           [ENV['SystemDrive'] || sep, 'usr', 'share'],
           [ENV['SystemDrive'] || sep, 'usr', 'local', 'share'],
-        ]
-
-        site = [
-          ENV['ProgramData'],
+          ENV['ProgramFiles'],
+          ENV['ProgramFiles(x86)'],
+          # possible distribution system config dirs
           [ENV['SystemDrive'] || sep, 'etc'],
-        ]
-
-        user = [
+          ENV['ProgramData'],
+          # possivle user config dirs
+          [ENV['HOME'], '.config'],
           ENV['AppData'],
           ENV['LocalAppData'],
-          [ENV['HOME'], '.config'],
         ]
 
         filenames = [[File.dirname(__FILE__), '..', '..', '..', 'config', 'config.rb']]
-        filenames = filenames + ((package + site + user).product(variants))
+        filenames = filenames + (dirs.product(variants))
         filenames.map! { |a| a.flatten }
         filenames.select! { |a| a.all? { |e| e } }
         filenames.map! { |a| File.join(a) }
