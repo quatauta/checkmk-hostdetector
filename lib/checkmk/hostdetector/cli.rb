@@ -22,15 +22,15 @@ module CheckMK
           # possible distribution install dirs
           [sep, 'usr', 'share'],
           [sep, 'usr', 'local', 'share'],
-          ENV['ProgramFiles'],
-          ENV['ProgramFiles(x86)'],
+          [ENV['ProgramFiles']],
+          [ENV['ProgramFiles(x86)']],
           # possible distribution system config dirs
           [sep, 'etc'],
-          ENV['ProgramData'],
+          [ENV['ProgramData']],
           # possivle user config dirs
           [ENV['HOME'], '.config'],
-          ENV['AppData'],
-          ENV['LocalAppData'],
+          [ENV['AppData']],
+          [ENV['LocalAppData']],
         ]
 
         filenames = [[File.dirname(__FILE__), '..', '..', '..', 'config', 'config.rb']]
