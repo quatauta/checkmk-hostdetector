@@ -42,6 +42,7 @@ module CheckMK
         filenames.select! { |a| a.all? { |e| e } }
         filenames.map! { |a| File.join(a) }
         filenames.map! { |n| n.gsub(File::SEPARATOR, sep) } if File::SEPARATOR != sep
+        filenames.map! { |n| begin ; File.realpath(n) ; rescue Errno::ENOENT ; n ; end }
 
         filenames
       end
