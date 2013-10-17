@@ -35,11 +35,11 @@ module CheckMK
 
         filenames = [[File.dirname(__FILE__), '..', '..', '..', 'config', 'config.rb']]
         filenames = filenames + (dirs.product(variants))
-        filenames.map! { |a| a.flatten }
-        filenames.select! { |a| a.all? { |e| e } }
-        filenames.map! { |a| File.join(a) }
-        filenames.map! { |n| n.gsub(File::SEPARATOR, sep) } if File::SEPARATOR != sep
-        filenames.map! { |n| begin ; File.realpath(n) ; rescue Errno::ENOENT ; n ; end }
+        filenames.map! { |ary| ary.flatten }
+        filenames.select! { |ary| ary.all? { |elem| elem } }
+        filenames.map! { |ary| File.join(ary) }
+        filenames.map! { |fn| fn.gsub(File::SEPARATOR, sep) } if File::SEPARATOR != sep
+        filenames.map! { |fn| begin ; File.realpath(fn) ; rescue Errno::ENOENT ; fn ; end }
 
         filenames
       end
