@@ -27,7 +27,7 @@ module CheckMK
           # possible distribution system config dirs
           [sep, 'etc'],
           [ENV['ProgramData']],
-          # possivle user config dirs
+          # possible user config dirs
           [ENV['HOME'], '.config'],
           [ENV['AppData']],
           [ENV['LocalAppData']],
