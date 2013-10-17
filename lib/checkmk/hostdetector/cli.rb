@@ -20,12 +20,12 @@ module CheckMK
 
         dirs = [
           # possible distribution install dirs
-          [ENV['SystemDrive'] || sep, 'usr', 'share'],
-          [ENV['SystemDrive'] || sep, 'usr', 'local', 'share'],
+          [sep, 'usr', 'share'],
+          [sep, 'usr', 'local', 'share'],
           ENV['ProgramFiles'],
           ENV['ProgramFiles(x86)'],
           # possible distribution system config dirs
-          [ENV['SystemDrive'] || sep, 'etc'],
+          [sep, 'etc'],
           ENV['ProgramData'],
           # possivle user config dirs
           [ENV['HOME'], '.config'],
