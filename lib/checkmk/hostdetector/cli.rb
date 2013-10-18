@@ -94,9 +94,7 @@ module CheckMK
       end
 
       def parse_options_slop(argv = ARGV)
-        options = Slop.new help: true, multiple_switches: true
-
-        options.banner <<-END
+        banner = '' + <<-END
           Scans your network for hosts and builds suitable configuration for
           CheckMK/WATO.
 
@@ -127,11 +125,13 @@ module CheckMK
 
           You can specify more than one configuration file. The files are read in the
           given order and settings from all files are merged.
+
+          Options:
           END
           .gsub(/^          /, '')
-        options.banner << "\n"
-        options.banner << "Options:"
 
+        options = Slop.new help: true, multiple_switches: true
+        options.banner = banner
         options.on('c=', 'config', 'The configuration file(s) to use.', as: Array, default: [])
         options.on('j=', 'jobs', 'The maximum number of jobs to run in parallel', as: Integer, default: 4)
         options.on('s=', 'sites', 'The file containing sites/ranges to be scanned', as: Array, default: [])
