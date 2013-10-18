@@ -1,8 +1,8 @@
 # -*- coding: utf-8; -*-
 # vim:set fileencoding=utf-8:
 
-# run four nmap/snmpstatus jobs in parallel
-jobs 4
+# run some nmap/snmpstatus jobs in parallel
+jobs 16
 
 # SNMP community and OIDs
 snmp_community 'public'
