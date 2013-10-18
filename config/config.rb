@@ -15,52 +15,55 @@ snmp_oid 'SNMPv2-SMI::enterprises.231.2.10.2.2.5.10.3.1.4'
 # exclude_host /EXCLUDE_ME/i
 
 # Names for Routes
-# name ip: '*.*.*.1', name: '%<site>sR01'
+# name ip: '*.*.*.1', name: '%<site>sR01_%<ip_a>03d_%<ip_b>03d_%<ip_c>03d_%<ip_d>03d', ip_a: -3, ip_b: +4, ip_c: -100, ip_d: -30
 
-# Device vendor/models
-model value: 'dell-r520',             regex: /poweredge.*r520/i
-model value: 'dell-r710',             regex: /poweredge.*r710/i
-model value: 'dell-t300',             regex: /poweredge.*t300/i
-model value: 'dell-t420',             regex: /poweredge.*t420/i
-model value: 'fsc-tx300',             regex: /primergy.*tx.*300/i
+# Device vendor/products
+tag 'vendor',  'dell',      /poweredge|equallogic|eqlappliance/i
+tag 'product', 'dell-r520', /poweredge.*r520/i
+tag 'product', 'dell-r710', /poweredge.*r710/i
+tag 'product', 'dell-t300', /poweredge.*t300/i
+tag 'product', 'dell-t420', /poweredge.*t420/i
+tag 'vendor',  'fsc',       /primergy/i
+tag 'product', 'fsc-tx300', /primergy.*tx.*300/i
 
-# Device vendor/model for VMware virtual machine with VMware MAC
-model value: 'vmware-vm',             regex: /mac.*00:50:56.*vmware/i
+# Device vendor/product for VMware virtual machine with VMware MAC
+tag 'vendor',  'vmware',    /vmware|esx|vsphere/i
+tag 'product', 'vmware-vm', /mac.*00:50:56.*vmware/i
 
-operatingsystem value: 'linux',        regex: /linux/i
-operatingsystem value: 'sco-openunix', regex: /sco.*(open|unix)/i
-operatingsystem value: 'vmware-esx',   regex: /vmware.*esx/i
-operatingsystem value: 'windows',      regex: /windows/i
+tag 'operatingsystem', 'linux',        /linux/i
+tag 'operatingsystem', 'sco-openunix', /sco.*(open|unix)/i
+tag 'operatingsystem', 'vmware-esx',   /vmware.*esx/i
+tag 'operatingsystem', 'windows',      /windows/i
 
 # Services of hosts based on nmap/snmpstatus output
-service value: 'backupexecagent',  regex: /10000.*(ndmp|backup.*exec|snet-sensor)/i
-service value: 'dhcp',             regex: /dhcp/i
-service value: 'dns',              regex: /53.*(dns|domain)/i
-service value: 'fileserver',       regex: /13[789].*netbios/i
-service value: 'http',             regex: /80.*http\b/i
-service value: 'https',            regex: /443.*(https|ssl.*http)/i
-service value: 'iperf',            regex: /5001.*iperf/i
-service value: 'iscsi',            regex: /(860|3260).*iscsi/i
-service value: 'ldap',             regex: /389.*ldap\b/i
-service value: 'ldaps',            regex: /636.*(ldaps|ssl.*ldap)/i
-service value: 'mssql',            regex: /1433.*ms-sql-s/i
-service value: 'mssql2005',        regex: /sql.*server.*2005/i
-service value: 'mssql2008',        regex: /sql.*server.*2008/i
-service value: 'mysql',            regex: /3306.*mysql/i
-service value: 'officescanclient', regex: /12345.*(netbus|officescan)/i
-service value: 'rdp',              regex: /3389.*ms-wbt-server/i
-service value: 'rsync',            regex: /873.*rsync/i
-service value: 'smtp',             regex: /25.*smtp\b/i
-service value: 'smtps',            regex: /465.*(smtps|ssl.*smtp)/i
-service value: 'ssh',              regex: /22.*ssh/i
+tag 'backupexec-agent',  /10000.*(ndmp|backup.*exec|snet-sensor)/i
+tag 'dhcp',              /dhcp/i
+tag 'dns',               /53.*(dns|domain)/i
+tag 'fileserver',        /13[789].*netbios/i
+tag 'http',              /80.*http\b/i
+tag 'https',             /443.*(https|ssl.*http)/i
+tag 'iperf',             /5001.*iperf/i
+tag 'iscsi',             /(860|3260).*iscsi/i
+tag 'ldap',              /389.*ldap\b/i
+tag 'ldaps',             /636.*(ldaps|ssl.*ldap)/i
+tag 'mssql',             /1433.*ms-sql-s/i
+tag 'mssql2005',         /sql.*server.*2005/i
+tag 'mssql2008',         /sql.*server.*2008/i
+tag 'mysql',             /3306.*mysql/i
+tag 'officescan-client', /12345.*(netbus|officescan)/i
+tag 'rdp',               /3389.*ms-wbt-server/i
+tag 'rsync',             /873.*rsync/i
+tag 'smtp',              /25.*smtp\b/i
+tag 'smtps',             /465.*(smtps|ssl.*smtp)/i
+tag 'ssh',               /22.*ssh/i
 
 # Device classes/types
-type value: 'printer', regex: /brother.*nc/i # u.a. Brother MFC-6490CW
-type value: 'printer', regex: /canon.*mx/i
-type value: 'printer', regex: /dlink.*print/i
-type value: 'printer', regex: /hp.*ethernet/i # u.a. HP OfficeJet Pro 8600 N911a
-type value: 'printer', regex: /jetdirect/i
-type value: 'printer', regex: /konica.*minolta/i
-type value: 'printer', regex: /kyocera/i
-type value: 'printer', regex: /lexmark/i
-type value: 'switch',  regex: /switch|superstack/i
+tag 'printer', /brother.*nc/i # u.a. Brother MFC-6490CW
+tag 'printer', /canon.*mx/i
+tag 'printer', /dlink.*print/i
+tag 'printer', /hp.*ethernet/i # u.a. HP OfficeJet Pro 8600 N911a
+tag 'printer', /jetdirect/i
+tag 'printer', /konica.*minolta/i
+tag 'printer', /kyocera/i
+tag 'printer', /lexmark/i
+tag 'switch' , /switch|superstack/i

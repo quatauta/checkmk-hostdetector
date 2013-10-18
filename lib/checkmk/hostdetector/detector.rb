@@ -39,7 +39,7 @@ module CheckMK
 
           hostname  = nil if hostname.empty?
           ipaddress = IPAddr.new(ipaddress)
-          host    = Host.new(hostname:  hostname,
+          host      = Host.new(hostname:  hostname,
                                ipaddress: ipaddress,
                                site:      site)
 
@@ -81,10 +81,11 @@ module CheckMK
         host.tags.agent       = 'ping'    unless snmp
         host.tags.agent       = 'snmp'    if snmp == '2c'
         host.tags.agent       = 'snmp-v1' if snmp == '1'
-        Helper.map(Config.models,           status).take(1).each { |m|  host.tags.model = m }
-        Helper.map(Config.operatingsystems, status).take(1).each { |os| host.tags.operatingsystem = os }
-        Helper.map(Config.types,            status).take(1).each { |t|  host.tags.type = t }
-        Helper.map(Config.services,         status)        .each { |s|  host.tags[s] = s }
+
+        Helper.map(config.tag, status).each { |ary|
+          name, value = ary
+          host.tags[name] = value
+        }
 
         host
       end

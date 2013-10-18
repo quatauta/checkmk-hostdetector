@@ -19,7 +19,10 @@ module CheckMK
         results = []
 
         map.each do |rule|
-          results << rule[:value] if text =~ rule[:regex]
+          if text =~ rule.last
+            results << [rule.first, rule[1]]    if 3 == rule.size
+            results << [rule.first, rule.first] if 2 == rule.size
+          end
         end
 
         results
