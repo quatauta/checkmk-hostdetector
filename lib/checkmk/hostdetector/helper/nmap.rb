@@ -20,7 +20,9 @@ module CheckMK
             status, stdout, stderr = Helper.exec(cmd)
           end
 
-          stdout.strip.lines.reject { |l| l =~ /Starting nmap.*http:\/\//i }.join('\n')
+          stdout.strip.lines.reject { |line|
+            line =~ /(Starting nmap)|[0-9]\/(tcp|udp) +(closed|open\|filtered)/i
+          }.join('\n')
         end
       end
     end
