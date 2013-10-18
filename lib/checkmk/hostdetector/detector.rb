@@ -73,8 +73,8 @@ module CheckMK
         status << Helper::Snmp.bulkget(host.ipaddress.to_s,
                                        version: snmp,
                                        oids:    Config.snmp_oids) if snmp
-        status << Helper::Nmap.scan(host.ipaddress.to_s, %w[-O -sV])
-        status << Helper::Nmap.scan(host.ipaddress.to_s, %w[-sU -p53,67])
+        status << Helper::Nmap.scan(host.ipaddress.to_s, %w[-A])
+        status << Helper::Nmap.scan(host.ipaddress.to_s, %w[-A -sU -p53,67,161])
 
         host.tags.networking  = 'lan'
         host.tags.criticality = 'prod'
