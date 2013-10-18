@@ -47,8 +47,8 @@ tag 'iscsi',             /(860|3260).*iscsi/i
 tag 'ldap',              /389.*ldap\b/i
 tag 'ldaps',             /636.*(ldaps|ssl.*ldap)/i
 tag 'mssql',             /1433.*ms-sql-s/i
-tag 'mssql2005',         /sql.*server.*2005/i
-tag 'mssql2008',         /sql.*server.*2008/i
+tag 'mssql-2005',        /sql.*server.*2005/i
+tag 'mssql-2008',        /sql.*server.*2008/i
 tag 'mysql',             /3306.*mysql/i
 tag 'officescan-client', /12345.*(netbus|officescan)/i
 tag 'rdp',               /3389.*ms-wbt-server/i
