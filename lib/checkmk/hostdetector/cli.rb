@@ -134,7 +134,7 @@ module CheckMK
         options.banner = banner
         options.on('c=', 'config', 'The configuration file(s) to use.', as: Array, default: [])
         options.on('j=', 'jobs', 'The maximum number of jobs to run in parallel', as: Integer, default: 4)
-        options.on('s=', 'sites', 'The file containing sites/ranges to be scanned', as: Array, default: [])
+        options.on('s=', 'sites', 'The files containing sites/ranges to be scanned', as: Array, default: [])
 
         options.parse(argv)
         options
