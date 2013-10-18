@@ -7,18 +7,10 @@ require 'slop'
 module CheckMK
   module HostDetector
     class Cli
-      def config_default_filenames
-        name = self.class.name.downcase.split('::')[0..1].join('_')
-        sep  = File::ALT_SEPARATOR || File::SEPARATOR
+      def default_config_dirs
+        sep = File::ALT_SEPARATOR || File::SEPARATOR
 
-        variants = [
-          [name, 'config.rb'],
-          [name + '.conf'],
-          [name.split('_'), 'config.rb'],
-          [name.split('_')[0..-2], name.split('_').last + '.conf'],
-        ]
-
-        dirs = [
+        [
           # possible distribution install dirs
           [sep, 'usr', 'share'],
           [sep, 'usr', 'local', 'share'],
@@ -32,9 +24,25 @@ module CheckMK
           [ENV['AppData']],
           [ENV['LocalAppData']],
         ]
+      end
+
+      def default_config_filename_variants
+        name = self.class.name.downcase.split('::')[0..1].join('_')
+        name_parts = name.split('_')
+
+        [
+          [name, 'config.rb'],
+          [name + '.conf'],
+          [name_parts, 'config.rb'],
+          [name_parts[0..-2], name_parts.last + '.conf'],
+        ]
+      end
+
+      def default_config_filenames
+        sep = File::ALT_SEPARATOR || File::SEPARATOR
 
         filenames = [[File.dirname(__FILE__), '..', '..', '..', 'config', 'config.rb']]
-        filenames = filenames + (dirs.product(variants))
+        filenames = filenames + (default_config_dirs.product(default_config_filename_variants))
         filenames.map! { |ary| ary.flatten }
         filenames.select! { |ary| ary.all? { |elem| elem } }
         filenames.map! { |ary| File.join(ary) }
@@ -59,7 +67,7 @@ module CheckMK
 
       def run(argv = ARGV)
         options = parse_options_slop(argv)
-        config  = config_load(Dir.glob(config_default_filenames) +
+        config  = config_load(Dir.glob(default_config_filenames) +
                               options[:config])
 
         # detector = Detector.new(config)
