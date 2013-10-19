@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.description   = %q{Build CheckMK/Multisite/WATO configuration files for networking hosts. Hosts are found with nmap. Host properties like vendor/product and offered services are detected using nmap and net-snmp.}
   spec.summary       = %q{CheckMK/Multisite/WATO configuration for networking hosts using on nmap/net-snmp}
   spec.homepage      = "https://github.com/quatauta/#{spec.name}"
-  spec.license       = "MIT"
+  spec.licenses      = ["MIT"]
 
   spec.files         = `git ls-files`.split($/)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
