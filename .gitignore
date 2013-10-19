@@ -9,6 +9,7 @@ InstalledFiles/
 _yardoc/
 coverage/
 doc/coverage/
+doc/metrics
 doc/rdoc/
 doc/spec/
 doc/yard/

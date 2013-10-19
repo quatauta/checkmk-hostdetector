@@ -37,6 +37,7 @@ namespace :doc do
 end
 
 begin
+  ENV['CC_BUILD_ARTIFACTS'] = 'doc/metrics'
   require 'metric_fu'
 rescue
 end
