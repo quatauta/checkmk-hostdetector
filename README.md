@@ -1,5 +1,7 @@
 # CheckMK::Host::Detector
 
+This thingy is in it's very early stages and currently not usable!
+
 TODO: Write a gem description
 
 ## Installation
