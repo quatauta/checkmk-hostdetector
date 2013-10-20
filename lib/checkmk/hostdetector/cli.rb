@@ -48,6 +48,34 @@ module CheckMK
         { short: 's', long: 'sites', desc: 'The files containing sites/ranges to be scanned', type: Array, default: [], },
       ]
 
+      def run(argv = ARGV)
+        options = Cli.parse_options_slop(HELP, OPTIONS, argv)
+        config  = Cli.load_config(Dir.glob(Cli.default_config_filenames) +
+                                  options[:config])
+
+        # detector = Detector.new(config)
+        # wato     = WatoOutput.new(config)
+        #
+        # detector.parse_sites(options[:sites])
+        # detector.detect_hosts
+        # detector.detect_hosts_properties
+        #
+        # detector.sites.each do |site|
+        #   puts "#{site.name} #{site.ranges.join(" ")}: #{site.hosts.size} hosts"
+        #   site.hosts.each do |host|
+        #     puts "  #{host.name}"
+        #     puts "    hostname:  #{host.hostname}"
+        #     puts "    ipaddress: #{host.ipaddress}"
+        #     puts "    site:      #{host.site.name}"
+        #     puts "    tags:      " + host.tags.to_h.to_a.map { |a| a[0].to_s == a[1].to_s ? a[0].to_s : "#{a[0]}:#{a[1]}" }.sort.join(' ')
+        #   end
+        #   puts
+        #   puts "WATO hosts.mk for site #{site.name}"
+        #   puts "-----------------------------------"
+        #   puts wato.hosts_mk(site.hosts)
+        #   puts
+      end
+
       def self.default_config_dirs
         [
           [File.dirname(__FILE__), '..', '..', '..', 'config'],
@@ -92,34 +120,6 @@ module CheckMK
         end
 
         config
-      end
-
-      def run(argv = ARGV)
-        options = Cli.parse_options_slop(HELP, OPTIONS, argv)
-        config  = Cli.load_config(Dir.glob(Cli.default_config_filenames) +
-                                  options[:config])
-
-        # detector = Detector.new(config)
-        # wato     = WatoOutput.new(config)
-        #
-        # detector.parse_sites(options[:sites])
-        # detector.detect_hosts
-        # detector.detect_hosts_properties
-        #
-        # detector.sites.each do |site|
-        #   puts "#{site.name} #{site.ranges.join(" ")}: #{site.hosts.size} hosts"
-        #   site.hosts.each do |host|
-        #     puts "  #{host.name}"
-        #     puts "    hostname:  #{host.hostname}"
-        #     puts "    ipaddress: #{host.ipaddress}"
-        #     puts "    site:      #{host.site.name}"
-        #     puts "    tags:      " + host.tags.to_h.to_a.map { |a| a[0].to_s == a[1].to_s ? a[0].to_s : "#{a[0]}:#{a[1]}" }.sort.join(' ')
-        #   end
-        #   puts
-        #   puts "WATO hosts.mk for site #{site.name}"
-        #   puts "-----------------------------------"
-        #   puts wato.hosts_mk(site.hosts)
-        #   puts
       end
 
       def self.option_parser_slop(help, options)
