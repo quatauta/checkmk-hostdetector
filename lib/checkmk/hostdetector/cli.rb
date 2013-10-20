@@ -81,7 +81,7 @@ module CheckMK
         }
       end
 
-      def config_load(filenames)
+      def load_config(filenames)
         config = ConfigDSL.new
 
         filenames.map { |filename|
@@ -96,7 +96,7 @@ module CheckMK
 
       def run(argv = ARGV)
         options = parse_options_slop(HELP, OPTIONS, argv)
-        config  = config_load(Dir.glob(default_config_filenames) +
+        config  = load_config(Dir.glob(default_config_filenames) +
                               options[:config])
 
         # detector = Detector.new(config)
