@@ -8,8 +8,7 @@ module CheckMK
   module HostDetector
     class Cli
       HELP = <<-END.gsub(/^ {8}/, '')
-        Scans your network for hosts and builds suitable configuration for
-        CheckMK/WATO.
+        Scans your network for hosts and builds suitable configuration for CheckMK/WATO.
 
         Usage:
           #{$PROGRAM_NAME} [OPTIONS] [-s SITES-FILE...] [SITE-FILES...]
@@ -19,11 +18,10 @@ module CheckMK
           cat SITES-FILES... | #{$PROGRAM_NAME} [OPTIONS] [-]
           echo 'Local 192.168.0.0/24' | #{$PROGRAM_NAME} [OPTIONS] [-]
 
-        Site files contain a name and the IP adress ranges to be scanned. Each line
-        begins with the site's name followed by one or multiple IP address ranges. Name
-        and range(s) are divided by whitespace. The ranges must conform to the nmap [1]
-        target specifications. Multiple lines the contain the same site's name are
-        merged.
+        Site files contain a name and the IP adress ranges to be scanned. Each line begins
+        with the site's name followed by one or multiple IP address ranges. Name and
+        range(s) are divided by whitespace. The ranges must conform to the nmap [1] target
+        specifications. Multiple lines containg the same site name are merged.
 
           Site-A 10.0.1.0/24 10.0.100.0/24
           Site-A 192.168.0,1,2.1-254
@@ -36,8 +34,8 @@ module CheckMK
         examples:  -ca.rb  -c a.rb  -c=a.rb  --c a.rb  --c=a.rb
                    -config a.rb  -config=a.rb  --config a.rb  --config=a.rb
 
-        You can specify more than one configuration file. The files are read in the
-        given order and settings from all files are merged.
+        You can specify more than one configuration file. The files are read in the given
+        order and settings from all files are merged.
 
         Options:
       END
