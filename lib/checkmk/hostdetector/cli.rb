@@ -43,9 +43,9 @@ module CheckMK
       END
 
       OPTIONS = [
-        { short: 'c', long: 'config', desc: 'The configuration file(s) to use.', type: Array, default: [], },
-        { short: 'j', long: 'jobs', desc: 'The number of jobs to run in parallel', type: Integer, default: nil, },
-        { short: 's', long: 'sites', desc: 'The files containing sites/ranges to be scanned', type: Array, default: [], },
+        { short: 'c', long: 'config', desc: 'Configuration file(s) to use',          type: Array,   default: [], },
+        { short: 'j', long: 'jobs',   desc: 'Number of jobs to run in parallel',     type: Integer, default: nil, },
+        { short: 's', long: 'sites',  desc: 'Files containing sites/ranges to scan', type: Array,   default: [], },
       ]
 
       def run(argv = ARGV)
