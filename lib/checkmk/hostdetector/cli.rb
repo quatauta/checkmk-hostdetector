@@ -8,24 +8,13 @@ module CheckMK
   module HostDetector
     class Cli
       def default_config_dirs
-        sep = File::ALT_SEPARATOR || File::SEPARATOR
-
         [
-          # default configuration file shipped with codebase
           [File.dirname(__FILE__), '..', '..', '..', 'config'],
-          # possible distribution install dirs
-          [sep, 'usr', 'share'],
-          [sep, 'usr', 'local', 'share'],
-          [ENV['ProgramFiles']],
-          [ENV['ProgramFiles(x86)']],
-          # possible distribution system config dirs
-          [sep, 'etc'],
-          [ENV['ProgramData']],
-          # possible user config dirs
+          [File::SEPARATOR, 'usr', 'share'],
+          [File::SEPARATOR, 'usr', 'local', 'share'],
+          [File::SEPARATOR, 'etc'],
           [ENV['HOME'], '.config'],
-          [ENV['AppData']],
-          [ENV['LocalAppData']],
-        ].select { |ary| ary.all? { |elem| elem } }.map { |ary| File.join(ary) }
+        ].map { |ary| File.join(ary) }
       end
 
       def default_config_filename_variants
@@ -37,7 +26,7 @@ module CheckMK
           [name + '.conf'],
           [name_parts, 'config.rb'],
           [name_parts[0..-2], name_parts.last + '.conf'],
-        ].map { |ary| File.join(ary.flatten) }
+        ].map { |ary| File.join(ary) }
       end
 
       def default_config_filenames
@@ -45,7 +34,7 @@ module CheckMK
 
         filenames = default_config_dirs.product(default_config_filename_variants)
           .map { |ary|
-          fn = File.join(ary).gsub(/[\/\\]/, sep).gsub(File::SEPARATOR, sep)
+          fn = File.join(ary)
           File.exist?(fn) ? File.realpath(fn) : fn
         }
 
