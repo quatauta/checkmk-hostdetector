@@ -48,7 +48,7 @@ module CheckMK
         { short: 's', long: 'sites', desc: 'The files containing sites/ranges to be scanned', type: Array, default: [], },
       ]
 
-      def default_config_dirs
+      def self.default_config_dirs
         [
           [File.dirname(__FILE__), '..', '..', '..', 'config'],
           [File::SEPARATOR, 'usr', 'share'],
@@ -58,7 +58,7 @@ module CheckMK
         ].map { |ary| File.join(ary) }
       end
 
-      def default_config_filename_variants
+      def self.default_config_filename_variants
         module_name = Module.nesting[1].name
         name_parts  = module_name.downcase.split('::')
         name        = name_parts.join('_')
@@ -71,7 +71,7 @@ module CheckMK
         ].map { |ary| File.join(ary) }
       end
 
-      def default_config_filenames
+      def self.default_config_filenames
         dirs      = default_config_dirs
         variants  = default_config_filename_variants
 
@@ -81,7 +81,7 @@ module CheckMK
         }
       end
 
-      def load_config(filenames)
+      def self.load_config(filenames)
         config = ConfigDSL.new
 
         filenames.map { |filename|
@@ -95,9 +95,9 @@ module CheckMK
       end
 
       def run(argv = ARGV)
-        options = parse_options_slop(HELP, OPTIONS, argv)
-        config  = load_config(Dir.glob(default_config_filenames) +
-                              options[:config])
+        options = Cli.parse_options_slop(HELP, OPTIONS, argv)
+        config  = Cli.load_config(Dir.glob(Cli.default_config_filenames) +
+                                  options[:config])
 
         # detector = Detector.new(config)
         # wato     = WatoOutput.new(config)
@@ -122,7 +122,7 @@ module CheckMK
         #   puts
       end
 
-      def option_parser_slop(help, options)
+      def self.option_parser_slop(help, options)
         slop = Slop.new(help: true, multiple_switches: true)
         slop.banner = help
 
@@ -136,7 +136,7 @@ module CheckMK
         slop
       end
 
-      def parse_options_slop(help, options, argv)
+      def self.parse_options_slop(help, options, argv)
         slop = option_parser_slop(help, options)
         slop.parse(argv)
         slop
