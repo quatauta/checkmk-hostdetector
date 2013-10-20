@@ -84,7 +84,7 @@ module CheckMK
       end
 
       def parse_options_slop(argv = ARGV)
-        banner = '' + <<-END
+        banner = <<-END.gsub(/^ {10}/, '')
           Scans your network for hosts and builds suitable configuration for
           CheckMK/WATO.
 
@@ -117,8 +117,7 @@ module CheckMK
           given order and settings from all files are merged.
 
           Options:
-          END
-          .gsub(/^          /, '')
+        END
 
         options = Slop.new help: true, multiple_switches: true
         options.banner = banner
