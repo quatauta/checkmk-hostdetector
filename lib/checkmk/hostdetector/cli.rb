@@ -18,8 +18,9 @@ module CheckMK
       end
 
       def default_config_filename_variants
-        name = self.class.name.downcase.split('::')[0..1].join('_')
-        name_parts = name.split('_')
+        module_name = Module.nesting[1].name
+        name_parts  = module_name.downcase.split('::')
+        name        = name_parts.join('_')
 
         [
           [name, 'config.rb'],
