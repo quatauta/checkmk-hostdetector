@@ -72,15 +72,13 @@ module CheckMK
       end
 
       def default_config_filenames
-        sep = File::ALT_SEPARATOR || File::SEPARATOR
+        dirs      = default_config_dirs
+        variants  = default_config_filename_variants
 
-        filenames = default_config_dirs.product(default_config_filename_variants)
-          .map { |ary|
+        dirs.product(variants).map { |ary|
           fn = File.join(ary)
           File.exist?(fn) ? File.realpath(fn) : fn
         }
-
-        filenames
       end
 
       def config_load(filenames)
