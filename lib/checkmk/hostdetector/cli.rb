@@ -11,6 +11,8 @@ module CheckMK
         sep = File::ALT_SEPARATOR || File::SEPARATOR
 
         [
+          # default configuration file shipped with codebase
+          [File.dirname(__FILE__), '..', '..', '..', 'config'],
           # possible distribution install dirs
           [sep, 'usr', 'share'],
           [sep, 'usr', 'local', 'share'],
@@ -23,7 +25,7 @@ module CheckMK
           [ENV['HOME'], '.config'],
           [ENV['AppData']],
           [ENV['LocalAppData']],
-        ]
+        ].select { |ary| ary.all? { |elem| elem } }.map { |ary| File.join(ary) }
       end
 
       def default_config_filename_variants
@@ -35,19 +37,17 @@ module CheckMK
           [name + '.conf'],
           [name_parts, 'config.rb'],
           [name_parts[0..-2], name_parts.last + '.conf'],
-        ]
+        ].map { |ary| File.join(ary.flatten) }
       end
 
       def default_config_filenames
         sep = File::ALT_SEPARATOR || File::SEPARATOR
 
-        filenames = [[File.dirname(__FILE__), '..', '..', '..', 'config', 'config.rb']]
-        filenames = filenames + (default_config_dirs.product(default_config_filename_variants))
-        filenames.map! { |ary| ary.flatten }
-        filenames.select! { |ary| ary.all? { |elem| elem } }
-        filenames.map! { |ary| File.join(ary) }
-        filenames.map! { |fn| fn.gsub(File::SEPARATOR, sep) } if File::SEPARATOR != sep
-        filenames.map! { |fn| begin ; File.realpath(fn) ; rescue Errno::ENOENT ; fn ; end }
+        filenames = default_config_dirs.product(default_config_filename_variants)
+          .map { |ary|
+          fn = File.join(ary).gsub(/[\/\\]/, sep).gsub(File::SEPARATOR, sep)
+          File.exist?(fn) ? File.realpath(fn) : fn
+        }
 
         filenames
       end
