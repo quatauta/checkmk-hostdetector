@@ -53,6 +53,7 @@ namespace :metrics do
   end
 end
 
+task :test => 'test:default'
 namespace :test do
   begin
     require 'rspec/core/rake_task.rb'
