@@ -2,7 +2,7 @@
 # vim:set fileencoding=utf-8:
 
 require 'checkmk/hostdetector/config_dsl'
-require 'slop'
+require 'docopt'
 
 module CheckMK
   module HostDetector
@@ -11,12 +11,16 @@ module CheckMK
         Scans your network for hosts and builds suitable configuration for CheckMK/WATO.
 
         Usage:
-          #{$PROGRAM_NAME} [OPTIONS] [-s SITES-FILE...] [SITE-FILES...]
+          #{$PROGRAM_NAME} [ [options] | SITE | <site> ]...
 
-        STDIN is read if site file is '-' or omitted:
-          #{$PROGRAM_NAME} [OPTIONS] [-s -] [-] < SITES-FILE
-          cat SITES-FILES... | #{$PROGRAM_NAME} [OPTIONS] [-]
-          echo 'Local 192.168.0.0/24' | #{$PROGRAM_NAME} [OPTIONS] [-]
+        Options:
+          -c CONF, --config=CONF  Configuration files to use
+          -j JOBS, --jobs=JOBS    Number of jobs to run in parallel
+          -s SITE, --site=SITE    Files containing sites/ranges to scan
+          -h, --help              Show this description
+          -v, --version           Show version and exit
+
+        STDIN is read if SITE is '-' or omitted.
 
         Site files contain a name and the IP adress ranges to be scanned. Each line begins
         with the site's name followed by one or multiple IP address ranges. Name and
@@ -30,37 +34,40 @@ module CheckMK
 
         [1] http://nmap.org/book/man-target-specification.html
 
-        The options listed below may be specified in different ways like shown in this
-        examples:  -ca.rb  -c a.rb  -c=a.rb  --c a.rb  --c=a.rb
-                   -config a.rb  -config=a.rb  --config a.rb  --config=a.rb
-
         You can specify more than one configuration file. The files are read in the given
         order and settings from all files are merged.
-
-        Options:
       END
 
-      OPTIONS = [
-        { short: 'c', long: 'config', desc: 'Configuration file(s) to use',          type: Array, default: [] },
-        { short: 'j', long: 'jobs',   desc: 'Number of jobs to run in parallel',     type: Integer },
-        { short: 's', long: 'sites',  desc: 'Files containing sites/ranges to scan', type: Array, default: [] },
-      ]
-
       def run(argv = ARGV)
-        options, args = Cli.parse_options_slop(HELP, OPTIONS, argv.dup)
+        begin
+          options = Cli.parse_options_docopt(HELP, argv.dup)
+        rescue Docopt::Exit => e
+          puts e.message
+          exit
+        end
+
+        require 'pp'
+        pp options: options
+
         config = Cli.load_config(Dir.glob(Cli.default_config_filenames) +
                                  options[:config])
-        config.jobs(options[:jobs]) if options[:jobs]
+        options[:jobs].map { |str|
+          str.to_i
+        }.reject { |int|
+          0 == int
+        }.each do |jobs|
+          config.jobs(jobs)
+        end
 
-        (options[:sites] + args).each do |filename|
+        options[:site].each do |filename|
           File.read(filename).each_line do |line|
             config.site(*line.split)
           end
         end
 
-        require 'pp' ; pp config ; pp options.to_hash ; pp args
+        pp config: config
+
         # TODO: settle cli
-        # TODO: check if thor may be used to create cli with subcommands?
 
         # detector = Detector.new(config)
         # wato     = WatoOutput.new(config)
@@ -131,24 +138,27 @@ module CheckMK
         config
       end
 
-      def self.option_parser_slop(help, options)
-        slop = Slop.new(help: true, multiple_switches: true)
-        slop.banner = help
-
-        options.each do |opt|
-          args = {}
-          args[:as]      = opt[:type]    if opt[:type]
-          args[:default] = opt[:default] if opt[:default]
-          slop.on(opt[:short], opt[:long] + (opt[:type] ? '=' : ''), opt[:desc], args)
-        end
-
-        slop
+      def self.parse_options_docopt(help, argv)
+        options = Docopt::docopt(help, argv: argv)
+        normalize_options(options)
       end
 
-      def self.parse_options_slop(help, options, argv)
-        slop = option_parser_slop(help, options)
-        remaining = slop.parse!(argv)
-        [slop, remaining]
+      def self.normalize_options(options = {})
+        normalized = {}
+
+        options.each_pair do |key, values|
+          norm_key = normalize_option_key(key)
+          (normalized[norm_key] ||= []).push(*values)
+        end
+
+        normalized
+      end
+
+      def self.normalize_option_key(key)
+        key.sub(/<(.*)>/, '\1')  # <arg>  ->  arg
+           .sub(/^-+/, '')       # --arg  ->  arg
+           .downcase
+           .to_sym
       end
     end
   end
