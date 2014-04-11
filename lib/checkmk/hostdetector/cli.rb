@@ -47,9 +47,20 @@ module CheckMK
       ]
 
       def run(argv = ARGV)
-        options = Cli.parse_options_slop(HELP, OPTIONS, argv)
-        config  = Cli.load_config(Dir.glob(Cli.default_config_filenames) +
-                                  options[:config])
+        options, args = Cli.parse_options_slop(HELP, OPTIONS, argv.dup)
+        config = Cli.load_config(Dir.glob(Cli.default_config_filenames) +
+                                 options[:config])
+        config.jobs(options[:jobs]) if options[:jobs]
+
+        (options[:sites] + args).each do |filename|
+          File.read(filename).each_line do |line|
+            config.site(*line.split)
+          end
+        end
+
+        require 'pp' ; pp config ; pp options.to_hash ; pp args
+        # TODO: settle cli
+        # TODO: check if thor may be used to create cli with subcommands?
 
         # detector = Detector.new(config)
         # wato     = WatoOutput.new(config)
@@ -136,8 +147,8 @@ module CheckMK
 
       def self.parse_options_slop(help, options, argv)
         slop = option_parser_slop(help, options)
-        slop.parse(argv)
-        slop
+        remaining = slop.parse!(argv)
+        [slop, remaining]
       end
     end
   end
