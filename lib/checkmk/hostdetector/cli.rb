@@ -11,7 +11,7 @@ module CheckMK
         Scans your network for hosts and builds suitable configuration for CheckMK/WATO.
 
         Usage:
-          #{$PROGRAM_NAME} [ [options] | SITE | <site> ]...
+          #{$PROGRAM_NAME} [ [options] | SITE ]...
 
         Options:
           -c CONF, --config=CONF  Configuration files to use
