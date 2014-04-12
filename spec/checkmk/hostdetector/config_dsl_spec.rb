@@ -41,7 +41,7 @@ module CheckMK::HostDetector
 
     describe "#load_from_file" do
       it "reads file content " do
-        filename = File.join(File.dirname(__FILE__), '..', '..', 'fixtures', 'config_dsl_example.rb')
+        filename = File.join(__dir__, '..', '..', 'fixtures', 'config_dsl_example.rb')
         subject.load_file(filename)
         expect(subject.option_a).to match_array(["Is a string", "or", "some", "more strings"])
         expect(subject.option_b).to match_array([123, 234, /Peter/])

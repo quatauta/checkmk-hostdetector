@@ -99,7 +99,7 @@ module CheckMK
 
       def self.default_config_dirs
         [
-          [File.dirname(__FILE__), '..', '..', '..', 'config'],
+          [__dir__, '..', '..', '..', 'config'],
           [File::SEPARATOR, 'usr', 'share'],
           [File::SEPARATOR, 'usr', 'local', 'share'],
           [File::SEPARATOR, 'etc'],
