@@ -2,6 +2,7 @@
 # vim:set fileencoding=utf-8:
 
 require 'checkmk/hostdetector/config_dsl'
+require 'checkmk/hostdetector/version'
 require 'docopt'
 
 module CheckMK
@@ -40,7 +41,11 @@ module CheckMK
 
       def run(argv = ARGV)
         begin
-          options = Cli.parse_options_docopt(HELP, argv.dup)
+          options = Cli.parse_options_docopt(HELP, argv.dup,
+                                             "%s %s" % [
+                                               $PROGRAM_NAME,
+                                               CheckMK::HostDetector::VERSION
+                                             ])
         rescue Docopt::Exit => e
           puts e.message
           exit
