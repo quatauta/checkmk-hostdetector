@@ -138,8 +138,8 @@ module CheckMK
         config
       end
 
-      def self.parse_options_docopt(help, argv)
-        options = Docopt::docopt(help, argv: argv)
+      def self.parse_options_docopt(help, argv, version)
+        options = Docopt::docopt(help, argv: argv, version: version)
         normalize_options(options)
       end
 
@@ -147,18 +147,21 @@ module CheckMK
         normalized = {}
 
         options.each_pair do |key, values|
-          norm_key = normalize_option_key(key)
+          norm_key = normalize_option_name(key)
           (normalized[norm_key] ||= []).push(*values)
         end
 
         normalized
       end
 
-      def self.normalize_option_key(key)
-        key.sub(/<(.*)>/, '\1')  # <arg>  ->  arg
-           .sub(/^-+/, '')       # --arg  ->  arg
-           .downcase
-           .to_sym
+      # Normalize the option names created by docopt. To normalize, the name is changed to
+      # lower case, leading dashes are removed and names enclosed in '<' '>' are no longer
+      # enclosed.
+      def self.normalize_option_name(name)
+        name.sub(/<(.*)>/, '\1')
+            .sub(/^--?/, '')
+            .downcase
+            .to_sym
       end
     end
   end
