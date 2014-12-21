@@ -1,4 +1,4 @@
-Copyright (c) 2013 Daniel Schömer
+Copyright (c) 2013-2014 Daniel Schömer <daniel.schoemer@gmx.net>
 
 MIT License
 
