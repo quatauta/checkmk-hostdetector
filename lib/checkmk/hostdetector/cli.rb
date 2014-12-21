@@ -104,6 +104,8 @@ module CheckMK
           [File::SEPARATOR, 'usr', 'local', 'share'],
           [File::SEPARATOR, 'etc'],
           [ENV['HOME'], '.config'],
+          [Dir.pwd, 'config'],
+          [Dir.pwd],
         ].map { |ary| File.join(ary) }
       end
 
