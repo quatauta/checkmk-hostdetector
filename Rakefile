@@ -8,6 +8,22 @@ namespace :gem do
     require 'bundler/gem_tasks'
   rescue
   end
+
+  begin
+    require 'rubinjam'
+
+    desc "Jam script in bin/ incl dependencies into script in pkg/ (using rubinjam)"
+    task :jam do
+      dir = 'pkg'
+      name, content = Rubinjam.pack(Dir.pwd)
+      script = File.join(dir, name)
+
+      FileUtils.mkdir_p(dir)
+      File.open(script, 'w') { |f| f.write content }
+      sh("chmod +x #{script}")
+    end
+  rescue LoadError
+  end
 end
 
 namespace :doc do
