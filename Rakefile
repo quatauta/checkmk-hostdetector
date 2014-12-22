@@ -7,7 +7,7 @@ task :default => 'test:default'
 namespace :gem do
   begin
     require 'bundler/gem_tasks'
-  rescue
+  rescue LoadError
   end
 
   begin
@@ -56,7 +56,7 @@ end
 begin
   ENV['CC_BUILD_ARTIFACTS'] = 'doc/metrics'
   require 'metric_fu'
-rescue
+rescue LoadError
 end
 
 namespace :metrics do
