@@ -1,6 +1,7 @@
 # -*- coding: utf-8; -*-
 # vim:set fileencoding=utf-8:
 
+desc "Run task:spec" # via test:default
 task :default => 'test:default'
 
 namespace :gem do
