@@ -9,7 +9,9 @@ namespace :gem do
     require 'bundler/gem_tasks'
   rescue LoadError
   end
+end
 
+namespace :gem
   begin
     require 'rubinjam'
 
