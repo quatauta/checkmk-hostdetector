@@ -4,47 +4,6 @@
 desc "Run task:spec" # via test:default
 task :default => 'test:default'
 
-namespace :gem do
-  begin
-    require 'bundler/gem_tasks'
-  rescue LoadError
-  end
-end
-
-namespace :gem
-  begin
-    require 'rubinjam'
-
-    desc "Jam script in bin/ incl dependencies into script in pkg/ (using rubinjam)"
-    task :jam do
-      dir = 'pkg'
-      name, content = Rubinjam.pack(Dir.pwd)
-      script = File.join(dir, name)
-
-      FileUtils.mkdir_p(dir)
-      File.open(script, 'w') { |f| f.write content }
-      sh("chmod +x #{script}")
-    end
-  rescue LoadError
-  end
-end
-
-namespace :gem do
-  begin
-    require 'bundler/audit/cli'
-
-    desc "Check for vulnerable gem dependencies"
-    task :audit do
-      %w(update check).each do |command|
-        Bundler::Audit::CLI.start([command])
-      end
-    end
-
-    Rake::Task[:default].enhance(['gem:audit'])
-  rescue LoadError
-  end
-end
-
 namespace :doc do
   begin
     require 'rdoc/task'
@@ -71,6 +30,48 @@ namespace :doc do
   end
 end
 
+namespace :gem do
+  begin
+    require 'bundler/audit/cli'
+
+    desc "Check for vulnerable gem dependencies"
+    task :audit do
+      %w(update check).each do |command|
+        Bundler::Audit::CLI.start([command])
+      end
+    end
+
+    Rake::Task[:default].enhance(['gem:audit'])
+  rescue LoadError
+  end
+end
+
+namespace :gem do
+  begin
+    require 'bundler/gem_tasks'
+  rescue LoadError
+  end
+end
+
+namespace :gem do
+  begin
+    require 'rubinjam'
+
+    desc "Jam script in bin/ incl dependencies into script in pkg/ (using rubinjam)"
+    task :jam do
+      dir = 'pkg'
+      name, content = Rubinjam.pack(Dir.pwd)
+      script = File.join(dir, name)
+
+      FileUtils.mkdir_p(dir)
+      File.open(script, 'w') { |f| f.write content }
+      sh("chmod +x #{script}")
+    end
+  rescue LoadError
+  end
+end
+
+# metric_fu tasks will be defined in namespace :metrics
 begin
   ENV['CC_BUILD_ARTIFACTS'] = 'doc/metrics'
   require 'metric_fu'
