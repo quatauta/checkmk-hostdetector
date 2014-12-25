@@ -27,6 +27,21 @@ namespace :gem do
   end
 end
 
+namespace :gem do
+  begin
+    require 'bundler/audit/cli'
+
+    task :audit do
+      %w(update check).each do |command|
+        Bundler::Audit::CLI.start([command])
+      end
+    end
+
+    Rake::Task[:default].enhance(['gem:audit'])
+  rescue LoadError
+  end
+end
+
 namespace :doc do
   begin
     require 'rdoc/task'
