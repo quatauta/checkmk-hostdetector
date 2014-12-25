@@ -31,6 +31,7 @@ namespace :gem do
   begin
     require 'bundler/audit/cli'
 
+    desc "Check for vulnerable gem dependencies"
     task :audit do
       %w(update check).each do |command|
         Bundler::Audit::CLI.start([command])
