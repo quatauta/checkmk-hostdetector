@@ -34,7 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "simplecov"
   spec.add_development_dependency "yard"
 
-  spec.add_runtime_dependency 'progressbar', ['>= 0.21.0']
   spec.add_runtime_dependency 'docopt', ['>= 0.5']
+  spec.add_runtime_dependency 'progressbar', ['>= 0.21.0']
   spec.add_runtime_dependency 'thread', ['>= 0.1.1']
 end
