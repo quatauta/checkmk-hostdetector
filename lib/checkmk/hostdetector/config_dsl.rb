@@ -4,6 +4,7 @@
 module CheckMK
   module HostDetector
     class ConfigDSL
+
       KEEP_METHODS = %w[ __id__ __send__ class inspect instance_eval instance_variables object_id send == === eql to_s ].map { |str| str.to_sym }
 
       instance_methods.each do |method|

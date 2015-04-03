@@ -3,11 +3,14 @@
 
 require 'checkmk/hostdetector/config_dsl'
 require 'checkmk/hostdetector/version'
+require 'contracts'
 require 'docopt'
 
 module CheckMK
   module HostDetector
     class Cli
+      include Contracts
+
       HELP = <<-END.gsub(/^ {8}/, '')
         Scans your network for hosts and builds suitable configuration for CheckMK/WATO.
 
@@ -39,6 +42,7 @@ module CheckMK
         order and settings from all files are merged.
       END
 
+      Contract ArrayOf[String] => None
       def run(argv = ARGV)
         begin
           options = Cli.parse_options_docopt(HELP, argv.dup,
@@ -97,6 +101,7 @@ module CheckMK
         #   puts
       end
 
+      Contract None => ArrayOf[String]
       def self.default_config_dirs
         [
           [__dir__, '..', '..', '..', 'config'],
@@ -109,6 +114,7 @@ module CheckMK
         ].map { |ary| File.join(ary) }
       end
 
+      Contract None => ArrayOf[String]
       def self.default_config_filename_variants
         module_name = Module.nesting[1].name
         name_parts  = module_name.downcase.split('::')
@@ -122,6 +128,7 @@ module CheckMK
         ].map { |ary| File.join(ary) }
       end
 
+      Contract None => ArrayOf[String]
       def self.default_config_filenames
         dirs      = default_config_dirs
         variants  = default_config_filename_variants
@@ -132,6 +139,7 @@ module CheckMK
         }
       end
 
+      Contract ArrayOf[String] => ConfigDSL
       def self.load_config(filenames)
         config = ConfigDSL.new
 
@@ -145,11 +153,13 @@ module CheckMK
         config
       end
 
+      Contract String, ArrayOf[String], String => Hash
       def self.parse_options_docopt(help, argv, version)
         options = Docopt::docopt(help, argv: argv, version: version)
         normalize_options(options)
       end
 
+      Contract HashOf[String, Any] => HashOf[Symbol, Any]
       def self.normalize_options(options = {})
         normalized = {}
 
@@ -164,6 +174,7 @@ module CheckMK
       # Normalize the option names created by docopt. To normalize, the name is changed to
       # lower case, leading dashes are removed and names enclosed in '<' '>' are no longer
       # enclosed.
+      Contract String => Symbol
       def self.normalize_option_name(name)
         name.sub(/<(.*)>/, '\1')
             .sub(/^--?/, '')

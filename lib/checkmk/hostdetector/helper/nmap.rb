@@ -2,15 +2,21 @@
 # vim:set fileencoding=utf-8:
 
 require 'checkmk/hostdetector/helper'
+require 'contracts'
 
 module CheckMK
   module HostDetector
     module Helper
       module Nmap
+        include Contracts
+        include Contracts::Modules
+
+        Contract String, Maybe[ArrayOf[String]] => String
         def self.ping(target, options = [])
           scan(target, ['-sP'] + options)
         end
 
+        Contract String, Maybe[ArrayOf[String]] => String
         def self.scan(target, options = [])
           cmd = (['nmap'] + options + [target.to_s]).flatten
           status, stdout, stderr = Helper.exec(cmd)

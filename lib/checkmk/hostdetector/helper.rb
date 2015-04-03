@@ -1,14 +1,19 @@
 # -*- coding: utf-8; -*-
 # vim:set fileencoding=utf-8:
 
+require 'contracts'
 require 'open3'
 
 module CheckMK
   module HostDetector
     module Helper
+      include Contracts
+      include Contracts::Modules
+
       autoload :Nmap, 'checkmk/hostdetector/helper/nmap'
       autoload :Snmp, 'checkmk/hostdetector/helper/snmp'
 
+      Contract Args[String] => [Num, String, String]
       def self.exec(cmd)
         stdout, stderr, status = Open3.capture3(*cmd)
 

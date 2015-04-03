@@ -1,13 +1,17 @@
 # -*- coding: utf-8; -*-
 # vim:set fileencoding=utf-8:
 
+require 'contracts'
+
 module CheckMK
   module HostDetector
     class Host
       include Comparable
+      include Contracts
 
       attr_accessor :name, :hostname, :ipaddress, :site, :tags
 
+      Contract Maybe[String], Maybe[String], Maybe[String] => Host
       def initialize(hostname: nil, ipaddress: nil, site: nil)
         self.hostname  = hostname
         self.ipaddress = ipaddress
@@ -21,14 +25,17 @@ module CheckMK
         end
       end
 
+      Contract Host => Num
       def <=>(other)
         to_s <=> other.to_s
       end
 
+      Contract None => String
       def to_s
         name.to_s
       end
 
+      Contract String, String => String
       def self.name_from_ipaddress(site, ipaddress)
         name = ''
         ip_c = ipaddress.to_s.split('.')[2].to_i
