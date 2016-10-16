@@ -1,14 +1,15 @@
 # -*- coding: utf-8; -*-
+# frozen_string_literal: true
 # vim:set fileencoding=utf-8:
 
-desc "Run task:spec" # via test:default
-task :default => 'test:default'
+desc 'Run task:spec' # via test:default
+task default: 'test:default'
 
 namespace :doc do
   begin
     require 'rdoc/task'
 
-    task :clobber => :clobber_rdoc
+    task clobber: :clobber_rdoc
     Rake::RDocTask.new(:rdoc) do |task|
       task.rdoc_files.include('bin/**/*.rb', 'lib/**/*.rb', 'doc/*.md')
       task.rdoc_dir = 'doc/rdoc'
@@ -19,6 +20,7 @@ namespace :doc do
       task.options << '--show-hash'
     end
   rescue LoadError
+    true # ignore missing rdoc
   end
 end
 
@@ -27,6 +29,7 @@ namespace :doc do
     require 'yard'
     YARD::Rake::YardocTask.new
   rescue LoadError
+    true # ignore missing yard
   end
 end
 
@@ -34,7 +37,7 @@ namespace :gem do
   begin
     require 'bundler/audit/cli'
 
-    desc "Check for vulnerable gem dependencies"
+    desc 'Check for vulnerable gem dependencies'
     task :audit do
       %w(update check).each do |command|
         Bundler::Audit::CLI.start([command])
@@ -43,6 +46,7 @@ namespace :gem do
 
     Rake::Task[:default].enhance(['gem:audit'])
   rescue LoadError
+    true # ignore missing bundler
   end
 end
 
@@ -50,6 +54,7 @@ namespace :gem do
   begin
     require 'bundler/gem_tasks'
   rescue LoadError
+    true # ignore missing bundler
   end
 end
 
@@ -57,7 +62,7 @@ namespace :gem do
   begin
     require 'rubinjam'
 
-    desc "Jam script in bin/ incl dependencies into script in pkg/ (using rubinjam)"
+    desc 'Jam script in bin/ incl dependencies into script in pkg/'
     task :jam do
       dir = 'pkg'
       name, content = Rubinjam.pack(Dir.pwd)
@@ -68,6 +73,7 @@ namespace :gem do
       sh("chmod +x #{script}")
     end
   rescue LoadError
+    true # ignore missing rubyinjam
   end
 end
 
@@ -76,6 +82,7 @@ begin
   ENV['CC_BUILD_ARTIFACTS'] = 'doc/metrics'
   require 'metric_fu'
 rescue LoadError
+  true # ignore missing metric_fu
 end
 
 namespace :metrics do
@@ -86,15 +93,17 @@ namespace :metrics do
       task.fail_on_error = false
     end
   rescue LoadError
+    true # ignore missing rubocop
   end
 end
 
-task :test => 'test:default'
+task test: 'test:default'
 namespace :test do
   begin
     require 'rspec/core/rake_task.rb'
     RSpec::Core::RakeTask.new
-    task :default => :spec
+    task default: :spec
   rescue LoadError
+    true # ignore missing rspec
   end
 end
