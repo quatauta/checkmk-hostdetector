@@ -1,4 +1,5 @@
 # -*- coding: utf-8; -*-
+# frozen_string_literal: true
 # vim:set fileencoding=utf-8:
 
 require 'checkmk/hostdetector/helper'
@@ -9,7 +10,6 @@ module CheckMK
     module Helper
       module Snmp
         include Contracts
-        include Contracts::Modules
 
         Contract String, Maybe[String], Maybe[String] => String
         def self.status(agent, version: '2c', community: 'public')

@@ -1,6 +1,8 @@
 # -*- coding: utf-8; -*-
+# frozen_string_literal: true
 # vim:set fileencoding=utf-8:
 
+require 'checkmk/hostdetector'
 require 'contracts'
 
 module CheckMK
@@ -26,7 +28,7 @@ module CheckMK
         end
       end
 
-      Contract ArrayOf[Host] => String
+      # Contract ArrayOf[CheckMK::HostDetector::Host] => String
       def hosts_mk(hosts = [])
         text = '# encoding: utf-8' << "\n\n"
 
