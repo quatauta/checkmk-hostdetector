@@ -1,15 +1,17 @@
 # -*- coding: utf-8; -*-
+# frozen_string_literal: true
 # vim:set fileencoding=utf-8:
+
+require 'checkmk/hostdetector/cli'
+require 'checkmk/hostdetector/config_dsl'
+require 'checkmk/hostdetector/detector'
+require 'checkmk/hostdetector/helper'
+require 'checkmk/hostdetector/host'
+require 'checkmk/hostdetector/site'
+require 'checkmk/hostdetector/version'
+require 'checkmk/hostdetector/watooutput'
 
 module CheckMK
   module HostDetector
-    autoload :Cli,           'checkmk/hostdetector/cli'
-    autoload :ConfigDSL,     'checkmk/hostdetector/config_dsl'
-    autoload :Detector,      'checkmk/hostdetector/detector'
-    autoload :Helper,        'checkmk/hostdetector/helper'
-    autoload :Host,          'checkmk/hostdetector/host'
-    autoload :Site,          'checkmk/hostdetector/site'
-    autoload :VERSION,       'checkmk/hostdetector/version'
-    autoload :WatoOutput,    'checkmk/hostdetector/watooutput'
   end
 end
