@@ -1,17 +1,18 @@
 # -*- coding: utf-8; -*-
+# frozen_string_literal: true
 # vim:set fileencoding=utf-8:
 
 require 'contracts'
 require 'open3'
 
+require 'checkmk/hostdetector/helper/nmap'
+require 'checkmk/hostdetector/helper/snmp'
+
 module CheckMK
   module HostDetector
     module Helper
       include Contracts
-      include Contracts::Modules
 
-      autoload :Nmap, 'checkmk/hostdetector/helper/nmap'
-      autoload :Snmp, 'checkmk/hostdetector/helper/snmp'
 
       Contract Args[String] => [Num, String, String]
       def self.exec(cmd)
