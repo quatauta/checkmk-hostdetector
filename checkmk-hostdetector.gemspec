@@ -26,6 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler-audit"
   spec.add_development_dependency "fuubar"
   spec.add_development_dependency "metric_fu"
+  spec.add_development_dependency "flog", "<4.4.0" # flog 4.4.0 is causing metric_fu to fail
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rdoc"
   spec.add_development_dependency "rspec"
