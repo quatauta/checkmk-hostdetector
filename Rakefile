@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 # vim:set fileencoding=utf-8:
 
-desc 'Run task:spec' # via test:default
+desc 'Run test:default'
 task default: 'test:default'
 
 namespace :doc do
@@ -105,5 +105,19 @@ namespace :test do
     task default: :spec
   rescue LoadError
     true # ignore missing rspec
+  end
+end
+
+namespace :test do
+  begin
+    require 'cucumber/rake/task'
+    Cucumber::Rake::Task.new(:features) do |t|
+      t.bundler = true
+      t.cucumber_opts = %w{-f progress}
+      t.fork = true
+    end
+    task default: :features
+  rescue LoadError
+    true # ignore missing cucumber
   end
 end
