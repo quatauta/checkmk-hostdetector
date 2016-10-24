@@ -1,3 +1,7 @@
+# -*- coding: utf-8; -*-
+# frozen_string_literal: true
+# vim:set fileencoding=utf-8:
+
 begin
   require 'simplecov'
 rescue LoadError
